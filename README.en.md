@@ -1,6 +1,6 @@
 # How to run openEuler on WSL
 
-First you need to configure the WSL environment in 6 steps, and then you can install any WSL distribution from the Microsoft Store, including openEuler!
+First you need to configure the WSL environment in 5 steps, and then you can install any WSL distribution from the Microsoft Store, including openEuler!
 
 # Configure the WSL environment  
 
@@ -210,5 +210,5 @@ Please refer to [FAQ's about Windows Subsystem for Linux 2 | Microsoft Docs](htt
 
 # Porting process
 
-If you are interested in the porting process, you can check out my [portingProcedure](./portingProcedure.en.md)
+If you are interested in the porting process, you can check out my [porting process](./porting process.md)
 

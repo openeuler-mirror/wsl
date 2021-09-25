@@ -1,6 +1,6 @@
 # 如何运行openEuler on WSL
 
-首先您需要6步配置WSL环境，然后您就能在Microsoft Store上安装任意WSL发行版了，包括openEuler！
+首先您需要5步配置WSL环境，然后您就能在Microsoft Store上安装任意WSL发行版了，包括openEuler！
 
 # 配置WSL环境
 
@@ -210,5 +210,5 @@ WSL有部分无法支持的原生Linux功能，比如不支持systemctl，正在
 
 # 移植过程
 
-如果您对移植过程感兴趣，可以查看我的[移植过程](./portingProcedure.md)
+如果您对移植过程感兴趣，可以查看我的[移植过程](./移植过程.md)
 
