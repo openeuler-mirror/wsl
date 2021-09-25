@@ -1,0 +1,4 @@
+FROM openeuler/openeuler:latest
+COPY README README.en /root/
+RUN dnf in shadow passwd sudo tar -y
+RUN sed -i '/TMOUT=300/d' /etc/bashrc

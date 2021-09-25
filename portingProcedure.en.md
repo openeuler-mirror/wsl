@@ -29,53 +29,51 @@ Refer to official documentation: [Import any Linux distribution to use with WSL 
 
 ## Export the container file system using Docker
 
-1. Download the Docker image of openEuler LTS SP1，[Link.](https://repo.openEuler.org/openEuler-20.03-LTS-SP1/docker_img/x86_64/openEuler-docker.x86_64.tar.xz) For example, I store it in the D:\Download directory.
-2. Open the console, **go to the folder** where you just downloaded the image. Start Ubuntu, and you will find your working directory is still in the same place, which is /mnt/d/Download.
+### Install docker
+1. Install the WSL and install any distribution under the WSL. Ubuntu is used as an example  
+2. Install the docker desktop, [link](https://www.docker.com/products/docker-desktop) and choose to install WSL related components  
+3. Enable the corresponding option in docker  
 
-```shell
-cd D:\Download
-wsl -d Ubuntu
+![image-20210924143435795](./README_images/image-20210924143435795.png)
+
+At this point the corresponding WSL release should have the docker command, if not, please refer to the docker [WSL official document](https://docs.docker.com/desktop/windows/wsl/) to configure.
+
+### Export the root file system  
+ 
+Start the WSL with Docker installed  
+ 
+Run scripts directly under the repository  
+ 
+```bash  
+git clone https://gitee.com/openeuler/wsl.git  
+cd wsl  
+sudo ./generate_rootfs.sh  
 ```
-
-3. Install docker under Ubuntu.
-
-```shell
-curl -sSL https://get.daocloud.io/docker | sh
-```
-
-4. Import the image. -i indicates that the tar package is used to import the image.
-
-```shell
-docker load -i .\openEuler-docker.x86_64.tar.xz
-```
-
-5. List the current images.
-
-```shell
-docker images
-```
-
-You should have the following output:
-
-```shell
-REPOSITORY                 TAG       IMAGE ID       CREATED         SIZE
-openEuler-20.03-lts-sp1    latest    6934cec25f28   3 months ago    512MB
-```
-
-6. Run any command to load the container.
-
-```sh
-docker run openEuler-20.03-lts-sp1 echo hello, openEuler WSL
-```
-
-7. Export a snapshot of the Docker container, which is the current file system.
-
-docker ps -ql means to get the container number of the most recently run container, which is just the container number of openEuler.
-
-```shell
-docker export $(docker ps -ql) > ./openEuler.tar
-exit
-```
+ 
+This will generate a root file system of openEuler's latest available long-term stable image, packaged and compressed as install.tar.gz.  
+ 
+Reference [openeuler docker - images:  Dockerfiles for openEuler official basic and application images. -   Gitee.com](https://gitee.com/openeuler/openeuler-docker-images/tree/master)  
+ 
+You can change the label of the first line of docker/dockerfile to the following options to generate different versions of the root file system.  
+ 
+- Names of currently available Tags:  
+   - [20.09](https://repo.openeuler.org/openEuler-20.09/docker_img/)
+   - [20.03-lts](https://repo.openeuler.org/openEuler-20.03-LTS/)
+   - [20.03-lts-sp1, 20.03, latest](https://repo.openeuler.org/openEuler-20.03-LTS-SP1/docker_img/)
+   - [20.03-lts-sp2](https://repo.openeuler.org/openEuler-20.03-LTS-SP2/docker_img/)
+   - [21.03](https://repo.openeuler.org/openEuler-21.03/docker_img/)
+ 
+Please note that I have made the following changes to the official image:  
+ 
+```dockerfile  
+COPY README README.en /root/  
+RUN dnf in shadow passwd sudo tar -y  
+RUN sed -i '/TMOUT=300/d' /etc/bashrc  
+``` 
+Several packages have been installed and the TMOUT configuration has been cancelled. See details in [docs](./docker/README) 
+ 
+1. Download the openEuler Docker image. 20.03 SP1 is used as an example.  [Download link](https://repo.openeuler.org/openEuler-20.03-LTS-SP1/docker_img/x86_64/openEuler-docker.x86_64.tar.xz),  Put it in the D:\Download directory here.  
+2. Open the console, ** go to the folder ** where the image was just downloaded, and start Ubuntu (if using Windows Terminal, you can directly right-click and click "Open in Windows Terminal").  
 
 ## Import the root file system using the WSL command
 
@@ -106,18 +104,6 @@ Fedora：[fedora-wsl-builder.sh · master · Gerard Braad / fedora-wsl · GitLab
 Kali Linux：[build_chroot.sh · master · Kali Linux / Build-Scripts / kali-wsl-chroot · GitLab](https://gitlab.com/kalilinux/build-scripts/kali-wsl-chroot/-/blob/master/build_chroot.sh)
 
 # Build the installation package process
-
-1. Install WSL and Ubuntu under WSL.
-
-2. Export the root file system.
-
-3. Git clone.
-
-4. Revise basic information.
-
-5. Modify the code.
-
-6. Build packages.
 
 ## 1 Install WSL, Ubuntu
 
@@ -168,23 +154,7 @@ You need to modify the following places:
 2. Visual Assets: Add a logo for your application display. you can use Asserts Generator to generate images of different sizes. Here I found the openEuler vector image logo, enlarged it a little, and referenced the Ubuntu startup icon, cropped the text part, which only remain the logo, to make the icon look better in the start menu.
 3. Packaging: Add application signature. Click the Choose Certificate... , click the Create... , enter any Publish Name and create it.
 
-## 5 Modify the code
-
-1. Modify "My Distribution" to openEuler in Distributionlnfo.h, requiring two changes.
-
-2. Modify DistroLauncher-Appx.vcxproj, find < TargetName> mydistro< TargetName> and change mydistro to openEuler.
-
-3. Open MyDistro.appxmanifest in plain text mode and change all mydistro to openEuler .
-
-   Click the toggle button below to toggle between the solution view and the plain text view. The two modes display different interfaces for MyDistro. AppXManifest.
-
-   ![image-20210421150031934](./README_images/image-20210421150031934.png)
-
-4. Comment code of creating user in distrolauncher.cpp, as shown below
-
-   ![image-20210718121332574](./README_images/image-20210718121332574.png)
-
-## 6 Build packages
+## 5 Build packages
 
 Copy the install.tar.gz from step 2 to the x86 directory at the root of the project
 
@@ -264,7 +234,3 @@ It should be noted that the following options should not be checked, for the fol
 ![img](./README_images/687474703a2f2f692e696d6775722e636f6d2f4b366b796573492e706e67.png)
 
 Then submit your application and wait for Microsoft to approve it.
-
-# Notes
-
-If you clone from https://gitee.com/openeuler/wsl, then folder name should change from wsl to WSL-DistroLauncher, otherwise the follow-up may compile failed.

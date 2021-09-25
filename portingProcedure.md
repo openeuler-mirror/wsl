@@ -1,20 +1,20 @@
 # 移植过程
 
-**如果您只想运行openEuler，那么可以到此为止了，不用往下看了。**
+**如果您只想运行 openEuler，那么可以到此为止了，不用往下看了。**
 
-如果您对WSL以及移植过程感兴趣，您可以接着往下看。
+如果您对 WSL 以及移植过程感兴趣，您可以接着往下看。
 
 # 浅谈WSL原理
 
 WSL很多地方与docker很像，如：
 
-1. 启动WSL的速度与启动docker容器速度差不多。
-2. 导入导出方式，都是用export，import命令。
-3. WSL下的各个发行版，与docker下的容器，都共享宿主机的内核。
+1. 启动 WSL 的速度与启动 docker 容器速度差不多。
+2. 导入导出方式，都是用 export，import 命令。
+3. WSL 下的各个发行版，与 docker下的容器，都共享宿主机的内核。
 
-因此我简单的理解为，WSL就是一个，使用起来和docker很像的，轻量化的虚拟机。
+因此我简单的理解为，WSL 就是一个，使用起来和 docker 很像的，轻量化的虚拟机。
 
-除此以外，Windows也开发了很多独有技术来实现WSL，参见官方博客：
+除此以外，Windows 也开发了很多独有技术来实现 WSL，参见官方博客：
 
 [Learn About Windows Console & Windows Subsystem For Linux (WSL) | Windows Command Line (microsoft.com)](https://devblogs.microsoft.com/commandline/learn-about-windows-console-and-windows-subsystem-for-linux-wsl/#deep-dives)
 
@@ -24,62 +24,60 @@ WSL很多地方与docker很像，如：
 
 您可以导入任何Linux发行版到WSL内：
 
-1. 您需要获得一个根文件系统，包含openEuler的所有二进制文件。
+1. 您需要获得一个根文件系统，包含 openEuler 的所有二进制文件。
    1. 使用docker导出容器文件系统。
-   2. 或者使用类似debootstrap的工具制作根文件系统。
+   2. 或者使用类似 debootstrap 的工具制作根文件系统。
 2. 使用WSL命令导入根文件系统。
 
 ## 使用docker导出容器文件系统
 
+### 安装docker
 
-1. 下载openEuler LTS SP1的docker镜像，[下载链接](https://repo.openeuler.org/openEuler-20.03-LTS-SP1/docker_img/x86_64/openEuler-docker.x86_64.tar.xz)，这里将其存放在D:\Download目录下。
+1. 安装 WSL，安装 WSL 下任意发行版，这里以 Ubuntu 为例
+2. 安装docker desktop，[链接](https://www.docker.com/products/docker-desktop)，选择安装 WSL 相关组件
+3. 在 docker 中开启对应的选项
 
-2. 打开控制台，**进入刚刚下载镜像的文件夹**，启动Ubuntu。此时Ubuntu的工作目录应在下载目录，也就是/mnt/d/Download目录下。
+![image-20210924143435795](./README_images/image-20210924143435795.png)
 
-```shell
-cd D:\Download
-wsl -d Ubuntu
+此时对应的 WSL 发行版中应该有 docker 命令了，如果没有，请参考 docker [wsl官方文档](https://docs.docker.com/desktop/windows/wsl/)配置 
+
+### 导出根文件系统
+
+启动装有 docker 的WSL
+
+直接运行仓库下的脚本
+
+```bash
+git clone https://gitee.com/openeuler/wsl.git
+cd wsl
+sudo ./generate_rootfs.sh
 ```
 
-3. 安装Ubuntu下的docker。
+这将生成一个 openEuler 最新可用的长期稳定镜像的根文件系统，打包压缩为 install.tar.gz。
 
-```shell
-curl -sSL https://get.daocloud.io/docker | sh
+参考[openeuler-docker-images: Dockerfiles for openEuler official basic and application images. - Gitee.com](https://gitee.com/openeuler/openeuler-docker-images/tree/master)
+
+你可以修改 docker/dockerfile 中的第一行的标签为如下选项，来生成不同版本的根文件系统。
+
+- 当前可用Tags的命名:
+  - [20.09](https://repo.openeuler.org/openEuler-20.09/docker_img/)
+  - [20.03-lts](https://repo.openeuler.org/openEuler-20.03-LTS/)
+  - [20.03-lts-sp1, 20.03, latest](https://repo.openeuler.org/openEuler-20.03-LTS-SP1/docker_img/)
+  - [20.03-lts-sp2](https://repo.openeuler.org/openEuler-20.03-LTS-SP2/docker_img/)
+  - [21.03](https://repo.openeuler.org/openEuler-21.03/docker_img/)
+
+请注意，这里我对官方镜像做出了如下修改：
+
+```dockerfile
+COPY README README.en /root/
+RUN dnf in shadow passwd sudo tar -y
+RUN sed -i '/TMOUT=300/d' /etc/bashrc
 ```
 
-4. 导入镜像，-i表示使用tar包来导入镜像。
+主要是安装了几个包，以及取消了TMOUT的设定，详细见[文档](./docker/README)
 
-```shell
-docker load -i .\openEuler-docker.x86_64.tar.xz
-```
-
-5. 查看现有images。
-
-```shell
-docker images
-```
-
-应该会有以下输出：
-
-```shell
-REPOSITORY                 TAG       IMAGE ID       CREATED         SIZE
-openeuler-20.03-lts-sp1    latest    6934cec25f28   3 months ago    512MB
-```
-
-6. 随便运行一个命令，加载容器。
-
-```sh
-docker run openeuler-20.03-lts-sp1 echo hello, openEuler WSL
-```
-
-7. 导出docker容器的快照，即当前文件系统。
-
-docker ps -ql表示获得最近运行的容器的编号，即刚才openEuler的容器编号。
-
-```shell
-docker export $(docker ps -ql) > ./openEuler.tar
-exit
-```
+1. 下载 openEuler 的docker镜像，这里以 20.03 SP1 为例：[下载链接](https://repo.openeuler.org/openEuler-20.03-LTS-SP1/docker_img/x86_64/openEuler-docker.x86_64.tar.xz)，这里将其存放在D:\Download目录下。
+2. 打开控制台，**进入刚刚下载镜像的文件夹**，启动Ubuntu（如果使用 Windows Terminal，可以直接右键点击，然后点击”在 Windows 终端中打开“）
 
 ## 使用WSL命令导入根文件系统
 
@@ -110,14 +108,6 @@ Fedora：[fedora-wsl-builder.sh · master · Gerard Braad / fedora-wsl · GitLab
 Kali Linux：[build_chroot.sh · master · Kali Linux / Build-Scripts / kali-wsl-chroot · GitLab](https://gitlab.com/kalilinux/build-scripts/kali-wsl-chroot/-/blob/master/build_chroot.sh)
 
 # 构建安装包过程
-
-1. 安装WSL、WSL下的Ubuntu。
-2. 导出根文件系统。
-3. 克隆。
-4. 修改基本信息。
-5. 修改代码。
-6. 构建包。
-
 ## 1 安装WSL、Ubuntu
 
 在[README](./README.md)中有详细讲述如何配置WSL与安装Ubuntu，这里不再赘述。
@@ -125,21 +115,6 @@ Kali Linux：[build_chroot.sh · master · Kali Linux / Build-Scripts / kali-wsl
 ## 2 导出根文件系统
 
 参考本文档”手动导入openEuler“小节。
-
-其中，最后一步改为：即修改了导出包的名称。
-
-```shell
-docker export $(docker ps -ql) > ./install.tar
-```
-
-退出WSL下的Ubuntu，压缩刚才的包，得到install.tar.gz。
-
-```shell
-exit
-gzip.exe -k .\install.tar
-```
-
--k表示保留包，不删除。
 
 ## 3 克隆
 
@@ -167,25 +142,7 @@ git clone https://github.com/Microsoft/WSL-DistroLauncher
 2. Visual Assets：添加应用展示的logo，可以使用Asserts Generator，生成不同大小的图片。这里我找到了openEuler的矢量图logo，放大了些，并参考Ubuntu启动图标，裁剪了文字部分，只保留了logo，让图标在开始菜单好看一些。
 3. Packaging：添加应用签名。点击Choose Certificate...，点击Create...，随意输入Publish Name，创建即可。
 
-## 5 修改代码
-
-1. 修改Distributionlnfo.h中，将My Distribution修改为openEuler，需要修改两处。
-
-2. 修改DistroLauncher-Appx.vcxproj中，在< TargetName> mydistro< TargetName>，中的mydistro修改为openEuler。
-
-3. 使用纯文本模式打开MyDistro.appxmanifest，将所有mydistro修改为openEuler。
-
-   请点击下面的切换按钮，可以在解决方案视图与纯文本视图切换。两种模式，显示的MyDistro.appxmanifest界面不同。
-
-   ![image-20210421150031934](./README_images/image-20210421150031934.png)
-
-4. 注释DistroLauncher.cpp中，创建用户的代码，如下所示：
-
-   ![image-20210718121332574](./README_images/image-20210718121332574.png)
-
-   
-
-## 6 构建包
+## 5 构建包
 
 将第2步得到的install.tar.gz复制到项目的根目录下的x86目录。
 
@@ -261,7 +218,3 @@ WSL-DistroLauncher\AppPackages\DistroLauncher-Appx\DistroLauncher-Appx_1.0.0.0_x
 ![img](./README_images/687474703a2f2f692e696d6775722e636f6d2f4b366b796573492e706e67.png)
 
 然后提交申请，等待微软审核后，就能发布了。
-
-# 注意事项
-
-如果您是从https://gitee.com/openeuler/wsl，git clone的仓库，那么文件夹名称请从wsl改为WSL-DistroLauncher，否则后续可能编译失败。

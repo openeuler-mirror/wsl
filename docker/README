@@ -1,0 +1,11 @@
+# openEuler WSL 常见问题
+## 自动退出 TMOUT
+openEuler 考虑到安全的原因，在/etc/bashrc文件下定义了 TMOUT=300，表示若控制台300s没有操作将自动关闭。这里我已经把"export TMOUT=300"，这一行删了，这样便不会自动退出，如果需要可以重新加回去
+
+## 网络连接问题
+由于微软修改了网络配置，如果您使用了VPN等软件，请关闭VPN，重启电脑尝试修复问题。如果您没有使用VPN，通常重启也能解决问题
+
+# 在哪里寻求帮助？
+如果您遇到问题，请首先去搜索引擎查找报错，基本都有解答。
+如果没有找到解决方案，可以参考微软 WSL 官方文档：https://docs.microsoft.com/zh-cn/windows/wsl/install-manual
+如果还是没有解决，欢迎您前往 https://gitee.com/openeuler/wsl/issues，提问，我们会尽量解答您的问题。
