@@ -1,42 +1,40 @@
-# How to run openEuler on WSL
+# How to Run openEuler on WSL
 
 First you need to configure the WSL environment in 5 steps, and then you can install any WSL distribution from the Microsoft Store, including openEuler!
 
-# Configure the WSL environment  
+# Configure the WSL Environment
 
-This is the official docs,  [Install WSL on Windows 10 | Microsoft Docs](https://docs.microsoft.com/en-us/windows/wsl/install-win10), You can also follow these steps:
+Official documents are available at: [Install WSL on Windows 10 | Microsoft Docs](https://docs.microsoft.com/en-us/windows/wsl/install-win10). You can also follow these steps.
 
 ## 1 Run PowerShell
 
-To open Poweshell by administrator , you can press Win+X and click **Windows PowerShell (Administrator)**
+To open Poweshell as an administrator, you can press  **Win+X**  and click **Windows PowerShell (Administrator)**.
 
-请注意，请不要点击“Windows PowerShell”，一定要点击带有(管理员)后缀的，因为这样才能用管理员身份启动。
+Do not click **Windows PowerShell**. Do click the one with the **administrator** suffix.
 
-Attention please, don't click on Windows PowerShell, be sure to click on the one with (administrator) suffix, because this will launch as an administrator.
+Copy and paste the following commands into the console and press **Enter** to run:
 
-Copy and paste the following commands into the console and press Enter to run:
-
-## 2 Enable the Windows Subsystem for Linux
+## 2 Enable the Windows subsystem for Linux
 
 ```powershell
 dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
 ```
 
-## 3 Enable Virtual Machine feature
+## 3 Enable the virtual machine feature
 
 ```shell
 dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
 ```
 
-## 4 Restart your computer 
+## 4 Reboot your computer 
 
-Be sure to restart, or you will not be able to continue.
+Reboot your computer so you can proceed to the subsequent operations.
 
-You can bookmark the document page in your browser, so your will find this document after reboot easily.
+You can add the document page in your browser favorites. That allows you to easily find this document after the reboot.
 
 ## 5  Download the Linux kernel update package
 
-Download the [latest package](https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi). Double-click to run - you will be prompted for elevated permissions, select ‘yes’ to approve this installation.
+Download the [latest package](https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi). Double-click it to start the installation. When you are prompted for an elevated permission, select **yes** to continue the installation.
 
 ## 6 Set WSL 2 as your default version
 
@@ -48,49 +46,49 @@ wsl --set-default-version 2
 
 # Install openEuler
 
-Once you've done all above, you can go to the Microsoft Store and install any Linux distribution, like openEuler.
+Once you have completed the preceding operations, you can go to the Microsoft Store and install any Linux distribution, like openEuler.
 
-1. click [openEuler in Microsoft Store](https://www.microsoft.com/store/apps/9NGF0Q0XP03D), click get, accept jumping to Microsoft Store.
+Click [openEuler in Microsoft Store](https://www.microsoft.com/store/apps/9NGF0Q0XP03D), click  **Get** , accept jumping to Microsoft Store.
 
-2. Or open the Microsoft Store manually and search for openeuler, as shown below:
+Alternatively, open the Microsoft Store manually and search for **openEuler**, as shown below:
 
 By default, your taskbar should have the following ICONS:
 
 ![image-20210715193437648](./README_images/image-20210715193437648.png)
 
-If not, you can press Win+Q and search for Microsoft Store
+If not, you can press Win+Q and search for Microsoft Store.
 
 ![image-20210718145047737](./README_images/image-20210718145047737.png)
 
-Either way, you'll see the OpenEuler description page on the Microsoft Store, as shown below, click Get and wait for the installation.
+In either way, you will see the openEuler description page on the Microsoft Store, as shown below. click **Get** and wait for the installation.
 
 ![image-20210718144218892](./README_images/image-20210718144218892.png)
 
 # Launch openEuler
 
-Once installed, there are several launch methods:
+Launch openEuler in any of the following methods:
 
-1. Click the icon in the Start menu.
-2. Launch from command line.
-3. Launch from VS code.
+1. Click the icon in the  **Start**  menu.
+2. Launch from a command line.
+3. Launch from VS Code.
 
-## Click the icon in the Start menu
+## Click the icon in the  **Start**  menu
 
 ![image-20210718145129093](./README_images/image-20210718145129093.png)
 
-As shown in the figure, drag the small openEuler icon on the left to the right to become a larger tile. Click on either the tile or the small icon to run.
+As shown in the figure, drag the small openEuler icon on the left to the right to become a larger tile. Click either the tile or the small icon to run.
 
-## Launch from command line
+## Launch from a command line
 
-There are three command lines under Windows: Poweshell, cmd, and Windows Terminal.
+There are three command lines on Windows: Poweshell, cmd, and Windows Terminal.
 
 Windows Terminal is recommended, which is more in line with the habits of Linux and has a more beautiful interface.
 
-Now I will show you how to install windows terminal, and how to use it.
+The following shows you how to install Windows Terminal and how to use it.
 
-1. Open Microsoft Store, search for Windows Terminal, and install.
-2. Open Windows Terminal in the Start menu or Win+Q search for Windows Terminal.
-3. Or press Win+R, type Windows Terminal or its abbreviation wt, and press Enter to launch
+1. Open Microsoft Store, search for Windows Terminal, and install it.
+2. Open Windows Terminal in the  **Start**  menu or  press **Win+Q**  to search for Windows Terminal.
+3. Or press  **Win+R** , type  **Windows Terminal**  or its abbreviation  **wt** , and then press  **Enter**  to launch.
 
 After starting any of the three command lines above, you can start openEuler by typing the WSL command on the command line.
 
@@ -108,9 +106,9 @@ wsl -l
 
 ![image-20210718145155353](./README_images/image-20210718145155353.png)
 
-You can see that I have installed openEuler fedoraremix Ubuntu here, and openEuler is the default distribution.
+You can see that openEuler fedoraremix Ubuntu is installed here, and openEuler is the default distribution.
 
-To start the default distribution, enter the following command.
+To start the default distribution, enter the following command:
 
 ```
 wsl 
@@ -122,7 +120,7 @@ If you installed another WSL distribution before openEuler, you can run the foll
 wsl -s openEuler
 ```
 
-In addition, you can specify to start any distribution using the -d command.
+In addition, you can specify to start any distribution using the  **-d**  command.
 
 ```
 wsl -d openEuler
@@ -130,44 +128,44 @@ wsl -d openEuler
 
 ![image-20210715194745640](./README_images/image-20210715194745640.png)
 
-As shown in the figure above, I used Windows Terminal to launch the default distribution of WSL, which is openEuler.
+As shown in the figure above, Windows Terminal is used to launch the default distribution of WSL, which is openEuler.
 
 
-## Launch from VS code
+## Launch from VS Code
 
-If you want to write some code, I recommend VS code to open WSL.
+If you want to write some code, VS Code is recommended to open WSL.
 
-VS Code can use SSH to connect to WSL. It needs to download an installation package in the WSL, which needs to be unpacked using tar, so the WSL distribution needs tar installed. 
+VS Code can use SSH to connect to WSL. It needs to download an installation package in the WSL, which needs to be unpacked using tar. Therefore, the WSL distribution requires installing tar. 
 
-1. Using the methods described above, open openEuler from the command line and install tar.
+1. Using the method described above, open openEuler from a command line and install tar.
 
    ```
    dnf install tar -y
    ```
 
-2. Install VS code, [Visual Studio Code - Code Editing. Redefined](https://code.visualstudio.com/)
+2. Install VS Code: [Visual Studio Code - Code Editing. Redefined](https://code.visualstudio.com/).
 
 3. Open VS Code and install the WSL plug-in.
 
 ![image-20210715195349061](./README_images/image-20210715195349061.png)
 
-2. In the Remote Explorer, click the drop-down button and select WSL Targets
+2. In the Remote Explorer, click the drop-down button and select  **WSL Targets**. 
 
 ![image-20210715195611221](./README_images/image-20210715195611221.png)
 
-3. In the menu, select openEuler to open a new window to start openEuler.
+3. In the menu, select  **openEuler**  to open a new window to start openEuler.
 
    ![image-20210715200737801](./README_images/image-20210715200737801.png)
 
-4. In VS Code, press the shortcut Ctrl+~ to open the console
+4. In VS Code, press  **Ctrl+~**  to open the console.
 
-# startup interface
+# Startup Interface
 
-Installation is required for the first run, which requires waiting for one or two minutes, as shown in the figure below:
+An installation is required for the first running. Wait one or two minutes, as shown in the figure below:
 
 ![image-20210715200255290](./README_images/image-20210715200255290.png)
 
-After installation, the interface is as follows:
+After the installation is complete, the screen information is as follows:
 
 ![image-20210715200311972](./README_images/image-20210715200311972.png)
 
@@ -175,15 +173,15 @@ After installation, the interface is as follows:
 
 ## WSL is not compatible with VMware VirtualBox
 
-Refer to [FAQ's about Windows Subsystem for Linux 2 | Microsoft Docs](https://docs.microsoft.com/en-us/windows/wsl/wsl2-faq#will-i-be-able-to-run-wsl-2-and-other-3rd-party-virtualization-tools-such-as-vmware--or-virtualbox-), WSL uses Hyper-V technology to provide virtualization, and some older versions of VMware and VirtualBox do not work properly when Hyper-V technology is enabled.
+Refer to [FAQ's about Windows Subsystem for Linux 2 | Microsoft Docs](https://docs.microsoft.com/en-us/windows/wsl/wsl2-faq#will-i-be-able-to-run-wsl-2-and-other-3rd-party-virtualization-tools-such-as-vmware--or-virtualbox-). WSL uses Hyper-V technology to provide virtualization, and some earlier versions of VMware and VirtualBox do not work properly when Hyper-V technology is enabled.
 
-This means that you need to update VMware, VirtualBox to the new version to fix the problem.
+This means that you need to update VMware and VirtualBox to the new version to fix the problem.
 
-## VS Code failed to connect to openEulelr
+## VS Code failed to connect to openEuler
 
-If you use VS Code to connect to openEulelr and get an error like the one shown in the image below, you will need to install tar in openEulelr for VS Code to connect.
+If you use VS Code to connect to openEuler and see an error like the one shown in the image below, you will need to install tar in openEuler for VS Code to connect.
 
-Start openEulelr from the command line, and then run the following command to install the tar package.
+Start openEuler from the command line, and then run the following command to install the tar package:
 
 ```shell
 dnf install tar -y
@@ -198,17 +196,17 @@ If you encounter other problems during the installation process, please refer to
 1. [Install WSL on Windows 10 | Microsoft Docs](https://docs.microsoft.com/en-us/windows/wsl/install-win10#troubleshooting-installation)
 2. [Troubleshooting Windows Subsystem for Linux | Microsoft Docs](https://docs.microsoft.com/en-us/windows/wsl/troubleshooting)
 
-In addition, Microsoft also introduced more useful knowledge about WSL, please refer to the documentation:
+In addition, Microsoft also introduces more useful knowledge about WSL:
 
 [Windows Subsystem for Linux Documentation | Microsoft Docs](https://docs.microsoft.com/en-us/windows/wsl/)
 
 ## The defect of WSL  
 
-WSL has some unsupported native Linux features, such as systemctl not supported, GUI is being supported, and so on.
+WSL has some unsupported native Linux features, such as systemctl and GUI.
 
-Please refer to [FAQ's about Windows Subsystem for Linux 2 | Microsoft Docs](https://docs.microsoft.com/en-us/windows/wsl/wsl2-faq) 
+Please refer to [FAQ's about Windows Subsystem for Linux 2 | Microsoft Docs](https://docs.microsoft.com/en-us/windows/wsl/wsl2-faq). 
 
-# Porting process
+# Porting Process
 
-If you are interested in the porting process, you can check out my [porting process](./porting process.md)
+If you are interested in the porting process, please refer to [porting process](./porting process.md).
 
