@@ -4,7 +4,7 @@ First you need to configure the WSL environment in 5 steps, and then you can ins
 
 # Configure the WSL Environment
 
-Official documents are available at: [Install WSL on Windows 10 | Microsoft Docs](https://docs.microsoft.com/en-us/windows/wsl/install-win10). You can also follow these steps:
+Official documents are available at: [Install WSL on Windows 10 | Microsoft Docs](https://docs.microsoft.com/en-us/windows/wsl/install-win10). You can also follow these steps.
 
 ## 1 Run PowerShell
 
