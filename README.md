@@ -1,214 +1,63 @@
-# 如何运行openEuler on WSL
+# openeuler WSL support
+通过微软的[launcher](https://github.com/microsoft/WSL-DistroLauncher)启动的openeuler发行版
 
-首先您需要5步配置WSL环境，然后您就能在Microsoft Store上安装任意WSL发行版了，包括openEuler！
+## build status
+[![Build WSL](https://github.com/pkking/openEuler-wsl/actions/workflows/wsl.yaml/badge.svg?branch=main)](https://github.com/pkking/openEuler-wsl/actions/workflows/wsl.yaml)
+## install
+1. 可以通过action里的artifacts下载，超过30天github会自动清理旧的artifacts，可以通过re-run重新生成
+1. 当前支持sideload 方式加载openeuler应用：
+    1. 将`sideload-xxx.zip`解压后，进入`DistroLaucher-xxx_Test`目录
+    1. 加载目录下的证书`xxx.cer`文件，[参考](https://stackoverflow.com/questions/23812471/installing-appx-without-trusted-certificate)，简单来说：
+        1. 双击`xxx.cer`
+        1. 选择`local machine`
+        1. 选择`trusted people`
+    1. 双击`DistroLauncher-Appx_xxx_<arm64/x64>.appxbundle` 安装openeuler WSL应用
 
-# 配置WSL环境
 
-这是官方文档，[在 Windows 10 上安装 WSL | Microsoft Docs](https://docs.microsoft.com/zh-cn/windows/wsl/install-win10)，您也可以按照以下步骤来做：
+## roadmap
+[] 支持其他launcher（[wsldl](https://github.com/yuk7/wsldl)，[wsl-distrod](https://github.com/nullpo-head/wsl-distrod)）
+[] 和openeuler 发布流程集成，持续发布LTS 版本的wsl rootfs，旁加载应用
+[] 在openEuler的基础设施中构建APP和rootfs，`github action`用户开发者自定义
+[x] 20.03 LTS SP3上架windows商店
+[x] 22.03 LTS 上架windows商店
+[] 22.09 上架windows商店
+[] systemd 正常工作并开启namespace
+ 
+## contribution
+You're wellcome
 
-## 1 启动控制台
+## LICENSE
+MIT
 
-使用管理员身份打开PoweShell，您可以按下Win+X，点击“**Windows PowerShell (管理员)**”。
-
-请注意，请不要点击“Windows PowerShell”，一定要点击带有(管理员)后缀的，因为这样才能用管理员身份启动。
-
-将下列命令复制粘贴到控制台，然后按回车运行：
-
-## 2 开启WSL服务
-
+# how to customize my own WSL
+1. fork本仓库
+2. 根据需要，修改本仓库代码（例如要增删包，可以修改`docker/Dockerfile`）
+3. 根据[该文档](https://learn.microsoft.com/en-us/azure/active-directory/develop/howto-create-self-signed-certificate)生成一个自签发的证书，后缀为pfx
+4. 修改`DistroLauncher-Appx/MyDistro.appxmanifest`中的`Publisher=`字段，将其改为与上面的证书CN字段一致
+5. 修改`DistroLauncher-Appx/DistroLauncher-Appx.vcxproj`中的`<PackageCertificateThumbprint>`字段，将其改为上面证书的指纹和证书`CN`字段，获取`CN`/`PackageCertificateThumbprint`的方法如下：
 ```powershell
-dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+PS C:\> Get-PfxCertificate -FilePath .\DistroLauncher-Appx_TemporaryKey.pfx
+
+Thumbprint                                Subject
+----------                                -------
+asdfsadfadfs9asdfasdfsadfE1FC8AC90C26DE1  CN=xxxadsfasdfsadf
 ```
-
-## 3 开启虚拟机特性
-
-```shell
-dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+## 没有微软开发者账号和azure AD
+6. 进入仓库`setting->secrets->actions->new secrets`，创建以下secrets
+- SIGN_CERT：内容为证书的base64编码，base64编码生成方式为：
+```powershell
+$fileContentBytes = get-content 'YOURFILEPATH.pfx' -Encoding Byte
+[System.Convert]::ToBase64String($fileContentBytes)
 ```
-
-## 4 重启电脑
-
-请一定要重启，否则无法继续下面的操作。
-
-您可以在浏览器中将该文档网页收藏，方便重启后继续往下操作。
-
-## 5  更新WSL内核
-
-下载[64位的Linux内核升级包](https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi)，双击安装下载好的安装包。
-
-## 6 将WSL2设为默认启动版本
-
-打开控制台，运行以下命令。
-
-```shell
-wsl --set-default-version 2
-```
-
-# 安装openEuler
-
-经过上述操作后，就可以前往Microsoft Store，安装任意Linux发行版了，这里以openEuler为例。
-
-1. 点击[openEuler在商城的链接](https://www.microsoft.com/store/apps/9NGF0Q0XP03D)，点击获取，允许网页跳转安装。
-
-2. 或者打开Microsoft Store，手动搜索openEuler，如下所示：
-
-默认情况下，您的任务栏应当有下列图标：
-
-![image-20210715193437648](./README_images/image-20210715193437648.png)
-
-如果没有，可以按下Win+Q，输入store，搜索Microsoft store
-
-![image-20210715192912605](./README_images/image-20210715192912605.png)
-
-无论哪种方法，您都会在Microsoft Store上看到openEuler的描述页，如下所示，点击获取，等待安装即可。
-
-![image-20210718110205318](./README_images/image-20210718110205318.png)
-
-
-
-# 启动openEuler
-
-安装好后，有以下几种启动方法：
-
-1. 开始菜单中点击图标启动。
-2. 命令行启动。
-3. VScode中启动。
-
-## 开始菜单中点击图标启动
-
-![image-20210716111332327](./README_images/image-20210716111332327.png)
-
-如图所示，将左侧openEuler小图标拖到右侧变成较大的磁贴，点击磁贴或小图标都能运行。
-
-## 命令行启动
-
-Windows下有三种命令行，PoweShell，cmd，Windows terminal。
-
-推荐使用Windows terminal，其使用更符合linux习惯，而且界面更美观。
-
-下面演示Windows terminal的安装，及打开方式。
-
-1. 打开Microsoft Store，搜索Windows terminal，安装
-2. 在开始菜单或Win+Q搜索windows terminal打开Windows terminal
-3. 或按下Win+R，输入windows terminal或者其缩写wt，按下回车即可启动
-
-启动上述三种任意命令行后，即可在命令行中输入WSL命令，来启动openEuler。
-
-输入下列命令查看命令行帮助：
-
-```
-wsl -h
-```
-
-输入以下命令显示当前安装的WSL发行版：
-
-```
-wsl -l
-```
-
-![image-20210715194505903](./README_images/image-20210715194505903.png)
-
-可以看到我这里安装了openEuler、fedoraremix、Ubuntu，且openEuler是默认启动的发行版。
-
-输入下列命令，可以启动默认的发行版。
-
-```
-wsl 
-```
-
-如果您在安装openEuler前安装了其他WSL发行版，那么可以运行下列命令将openEuler设为默认启动的发行版。
-
-```
-wsl -s openEuler
-```
-
-此外，使用-d命令，可以指定启动任意发行版。
-
-```
-wsl -d openEuler
-```
-
-![image-20210715194745640](./README_images/image-20210715194745640.png)
-
-如上图所示，我使用Windows Terminal启动了WSL的默认发行版，也就是openEuler。
-
-
-## VScode启动
-
-如果涉及代码编写，推荐使用VScode打开WSL。
-
-VScode可以使用ssh的方式，连接到WSL。其需要在WSL中下载一个安装包，此安装包需要使用tar解包，因此连接的发行版需要安装tar。
-
-1. 使用上面讲的方法，在命令行打开openEuler，安装tar。
-
-   ```
-   dnf install tar -y
-   ```
-
-2. 在Windows下安装VScode，[官网链接](https://code.visualstudio.com/)。
-
-3. 打开vscode，安装WSL插件。
-
-![image-20210715195349061](./README_images/image-20210715195349061.png)
-
-2. 在远程资源管理器中，在下拉菜单中，选择WSL targets
-
-![image-20210715195611221](./README_images/image-20210715195611221.png)
-
-3. 在菜单中，选择openEuler，即可打开新的窗口启动openEuler
-
-   ![image-20210715200737801](./README_images/image-20210715200737801.png)
-
-4. 在VScode中，按下快捷键Ctrl+~，即可打开控制台
-
-# 启动界面
-
-首次运行需要进行安装，需要稍等一两分钟，如下图所示：
-
-![image-20210715200255290](./README_images/image-20210715200255290.png)
-
-安装好后，界面如下：
-
-![image-20210715200311972](./README_images/image-20210715200311972.png)
-
-# 注意事项
-
-## WSL与VMware、VirtualBox不兼容问题
-
-参见[官方文档](https://docs.microsoft.com/en-us/windows/wsl/wsl2-faq#will-i-be-able-to-run-wsl-2-and-other-3rd-party-virtualization-tools-such-as-vmware--or-virtualbox-)，WSL使用Hyper-V技术来提供虚拟化，而部分老版本的VMware、VirtualBox在Hyper-V技术开启后，无法正常运行。
-
-这意味着您需要更新VMware、VirtualBox到新版本来解决这个问题。
-
-## VScode连接openEuler失败
-
-如果您使用VScode 连接openEUler报错，出现了下图所示的报错，那么您需要在openEulelr中安装tar，才能让VScode连接成功。
-
-请使用命令行启动openEuler，然后运行下列命令来安装tar包。
-
-```shell
-dnf install tar -y
-```
-
-![image-20210715201454093](./README_images/image-20210715201454093.png)
-
-## 其他问题
-
-如果您安装过程中，出现了其他问题，请参考以下微软文档：
-
-1. [在 Windows 10 上安装 WSL | Microsoft Docs](https://docs.microsoft.com/zh-cn/windows/wsl/install-win10#troubleshooting-installation)
-2. [排查适用于 Linux 的 Windows 子系统问题 | Microsoft Docs](https://docs.microsoft.com/zh-cn/windows/wsl/troubleshooting)
-
-此外，微软官方还介绍了更多关于WSL的有用知识，请参考文档：
-
-[适用于 Linux 的 Windows 子系统文档 | Microsoft Docs](https://docs.microsoft.com/zh-cn/windows/wsl/)
-
-## WSL的缺陷
-
-WSL有部分无法支持的原生Linux功能，比如不支持systemctl，正在支持GUI等。
-
-详见[有关适用于 Linux 2 的 Windows 子系统的常见问题 | Microsoft Docs](https://docs.microsoft.com/zh-cn/windows/wsl/wsl2-faq)
-
-# 移植过程
-
-如果您对移植过程感兴趣，可以查看我的[移植过程](./移植过程.md)
-
+## 有微软开发者账号
+6. fork本仓库
+7. 进入仓库`setting->secrets->actions->new secrets`，创建以下secrets
+- AZURE_AD_APP_KEY
+- AZURE_AD_CLIENT_ID
+- AZURE_AD_TENANT_ID
+- SIGN_CERT
+
+AZURE这几个变量，请参考[这里](https://github.com/marketplace/actions/windows-store-publish#prerequisites)的步骤生成
+SIGN_CERT请参考上面的步骤
+
+修改后，通过点击`actioin`中的`run workflow`就能生成对应的WSL软件包（如果没有开发者账号或不期望发布到应用商店，`Should we upload the appxbundle to the store`这个参数请输入`no`，否则输入`yes`），对应任务的summary页面中，可以下载所有生成的`artifacts`，其中`rootfs-xxx`是用于制作WSL的文件系统，`siteload-xxx`是可以直接通过双击安装的app软件包，`storeupload-`则是用于上传到微软商店的app软件包

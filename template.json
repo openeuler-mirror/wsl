@@ -1,0 +1,153 @@
+{
+    "applicationCategory": "DeveloperTools_Utilities",
+    "pricing": {
+        "trialPeriod": "NoFreeTrial",
+        "marketSpecificPricings": {
+            "LB": "NotAvailable",
+            "EH": "NotAvailable"
+        },
+        "sales": [],
+        "priceId": "Free",
+        "isAdvancedPricingModel": true
+    },
+    "visibility": "Public",
+    "targetPublishMode": "Manual",
+    "targetPublishDate": "1601-01-01T00:00:00.0000000Z",
+    "listings": {
+        "en-us": {
+            "baseListing": {
+                "copyrightAndTrademarkInfo": "Copyright © ${year} openEuler. All rights reserved.",
+                "keywords": [
+                    "openEuler",
+                    "WSL"
+                ],
+                "licenseTerms": "",
+                "privacyPolicy": "",
+                "supportContact": "infra@openeuler.org",
+                "websiteUrl": "",
+                "description": "${desc_en}",
+                "features": [],
+                "releaseNotes": "${releasenote_en}",
+                "images": [
+                    {
+                        "fileName": "${image}",
+                        "fileStatus": "PendingUpload",
+                        "description": "",
+                        "imageType": "Screenshot"
+                    }
+                ],
+                "recommendedHardware": [],
+                "minimumHardware": [],
+                "title": "openEuler ${release}",
+                "shortDescription": "",
+                "shortTitle": "",
+                "sortTitle": "",
+                "voiceTitle": "",
+                "devStudio": "infra@openeuler.org"
+            },
+            "platformOverrides": {}
+        },
+        "zh": {
+            "baseListing": {
+                "copyrightAndTrademarkInfo": "版权所有 © ${year} openEuler 保留一切权利",
+                "keywords": [
+                    "openEuler",
+                    "WSL"
+                ],
+                "licenseTerms": "",
+                "privacyPolicy": "",
+                "supportContact": "infra@openeuler.org",
+                "websiteUrl": "",
+                "description": "${desc_zh}",
+                "features": [
+                    "WSL",
+                    "openEuler",
+                    "bash",
+                    "dnf",
+                    "ssh",
+                    "git"
+                ],
+                "releaseNotes": "${releasenote_zh}",
+                "images": [
+                    {
+                        "fileName": "${image}",
+                        "fileStatus": "PendingUpload",
+                        "description": "",
+                        "imageType": "Screenshot"
+                    }
+                ],
+                "recommendedHardware": [],
+                "minimumHardware": [],
+                "title": "openEuler ${release}",
+                "shortDescription": "",
+                "shortTitle": "",
+                "sortTitle": "",
+                "voiceTitle": "",
+                "devStudio": "infra@openeuler.org"
+            },
+            "platformOverrides": {}
+        }
+    },
+    "hardwarePreferences": [
+        "Keyboard"
+    ],
+    "automaticBackupEnabled": true,
+    "canInstallOnRemovableMedia": false,
+    "isGameDvrEnabled": false,
+    "gamingOptions": [
+        {
+            "genres": [
+                "DeveloperTools_Utilities"
+            ],
+            "isLocalMultiplayer": false,
+            "isLocalCooperative": false,
+            "isOnlineMultiplayer": false,
+            "isOnlineCooperative": false,
+            "isBroadcastingPrivilegeGranted": true,
+            "isCrossPlayEnabled": false,
+            "kinectDataForExternal": "Disabled"
+        }
+    ],
+    "hasExternalInAppProducts": false,
+    "meetAccessibilityGuidelines": false,
+    "notesForCertification": "",
+    "status": "Published",
+    "statusDetails": {
+        "errors": [],
+        "warnings": [
+            {
+                "code": "SalesUnsupportedWarning",
+                "details": "The sales resource is no longer supported. To view or edit the sales data for this submission, use the Dev Center dashboard."
+            }
+        ],
+        "certificationReports": []
+    },
+    "applicationPackages": [
+        {
+            "fileName": "${upload_file}",
+            "fileStatus": "PendingUpload",
+            "minimumDirectXVersion": "None",
+            "minimumSystemRam": "None"
+        }
+    ],
+    "packageDeliveryOptions": {
+        "packageRollout": {
+            "isPackageRollout": false,
+            "packageRolloutPercentage": 0,
+            "packageRolloutStatus": "PackageRolloutNotStarted",
+            "fallbackSubmissionId": "0"
+        },
+        "isMandatoryUpdate": false,
+        "mandatoryUpdateEffectiveDate": "1601-01-01T00:00:00.0000000Z"
+    },
+    "enterpriseLicensing": "Online",
+    "allowMicrosoftDecideAppAvailabilityToFutureDeviceFamilies": true,
+    "allowTargetFutureDeviceFamilies": {
+        "Desktop": true,
+        "Mobile": false,
+        "Xbox": false,
+        "Holographic": false
+    },
+    "friendlyName": "infra@openEuler",
+    "trailers": []
+}

@@ -1,10 +1,10 @@
 #!/bin/bash
-if [[ "$(whoami)" != "root" ]]; then
-    echo please run in root!
-    exit 1
+
+ARGS=$1
+if [ -z $ARGS ];then
+    ARGS="latest"
 fi
-cd docker
-docker build . -t openeuler-wsl
-docker run openeuler-wsl echo hello
+
+docker run openeuler-wsl:$ARGS echo hello
 echo exporting... this may take 2 minuts, please wait...
-eval docker export $(docker ps -ql) | gzip > ../install.tar.gz
+docker export $(docker ps -ql) | gzip -9 > ./install.tar.gz

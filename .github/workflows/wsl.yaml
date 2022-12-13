@@ -1,0 +1,126 @@
+name: Build WSL
+on:
+  workflow_dispatch:
+    inputs:
+      upload:
+        description: 'Should we upload the appxbundle to the store'
+        required: false
+        default: 'no'
+
+  push:
+    branches: [ "main" ]
+concurrency: build-wsl
+
+env:
+  archs: "x64 ARM64"
+  workDir: 'C:/Temp/builddir'
+
+jobs:
+  build-rootfs:
+    uses: ./.github/workflows/rootfs.yaml
+  build-wsl:
+    needs: build-rootfs
+    name: Build openEuler ${{ matrix.release }} app
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        release: [22.03, 20.03]
+    steps:
+      - name: Checkout code
+        shell: bash
+        run: |
+          mkdir -p ${{ env.workDir }}
+          git clone ${{ github.server_url }}/${{ github.repository }} ${{ env.workDir }}
+          cd ${{ env.workDir }}
+          git checkout "${GITHUB_SHA}"
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.1
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          path: ${{ env.workDir }}
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: install deps
+        working-directory: ${{ env.workDir }}
+        shell: bash
+        run: |
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: set env
+        working-directory: ${{ env.workDir }}
+        shell: bash
+        run: |
+          # make 22.03 to 2203
+          r=$(echo "${{ matrix.release }}"|sed 's/\.//')
+          sp=$(python3 get_sp_version.py ${{ matrix.release }})
+          version=$(echo $r.$sp.${{ github.run_number }})
+          echo "version=$version" >> $GITHUB_ENV
+          python3 custom.py -r ${{ matrix.release }} -v $version
+      - name: show and prepare artifact
+        working-directory: ${{ env.workDir }}
+        shell: bash
+        run: |
+          read -ra archs <<< "${{ env.archs }}"
+          for arch in ${archs[@]};do
+            if [ $arch == "x64" ];then
+              targetarch=x86_64
+            elif [ $arch == 'ARM64' ];then
+              targetarch=aarch64
+            fi
+            mkdir -vp $arch
+            mv -v openeuler-${{ matrix.release }}-$targetarch-wsl-rootfs.tar/openeuler-${{ matrix.release }}-$targetarch-wsl-rootfs.tar.gz $arch/install.tar.gz
+          done
+          targets=$(echo ${{ env.archs }}|sed 's/ /|/g')
+          echo "targets=$targets" >> $GITHUB_ENV
+          rm -rf openeuler-*-wsl-rootfs.tar
+          ls -lh **
+      # Decode the Base64 encoded Pfx
+      - name: Decode the Pfx
+        run: |
+          New-Item -ItemType directory -Path certificate
+          Set-Content -Path certificate\certificate.txt -Value '${{ secrets.SIGN_CERT }}'
+          certutil -decode certificate\certificate.txt certificate\certificate.pfx
+          Import-PfxCertificate -CertStoreLocation Cert:LocalMachine\Trust -FilePath certificate\certificate.pfx
+          Import-PfxCertificate -CertStoreLocation Cert:CurrentUser\My -FilePath certificate\certificate.pfx
+      - name: Build Bundle
+        working-directory: ${{ env.workDir }}
+        shell: powershell
+        run: |
+          msbuild .\DistroLauncher.sln /t:Build /m /nr:false /p:Configuration=Release /p:AppxBundle=Always /p:AppxBundlePlatforms="${{ env.targets }}" -verbosity:normal /p:UapAppxPackageBuildMode="StoreUpload" /p:UseSubFolderForOutputDirDuringMultiPlatformBuild=false
+      - name: copy assets
+        working-directory: ${{ env.workDir }}
+        shell: bash
+        run: |
+          cp -v meta/${{ matrix.release }}/${{ matrix.release }}.PNG AppPackages/DistroLauncher-Appx/
+      - name: Allow downloading sideload appxbundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: sideload-openeuler-${{ matrix.release }}
+          path: ${{ env.workDir }}/AppPackages/DistroLauncher-Appx/DistroLauncher-Appx_*/*
+      - name: Allow downloading store appxupload
+        uses: actions/upload-artifact@v2
+        with:
+          name: storeupload-openeuler-${{ matrix.release }}
+          path: |
+            ${{ env.workDir }}/AppPackages/DistroLauncher-Appx/DistroLauncher-Appx_*.appxupload
+            ${{ env.workDir }}/AppPackages/DistroLauncher-Appx/*.PNG
+      - name: show zip files
+        working-directory: ${{ env.workDir }}/AppPackages/DistroLauncher-Appx
+        shell: bash
+        run: |
+          ls -lh **
+      - name: Archive Release
+        uses: thedoctor0/zip-release@main
+        with:
+          directory: ${{ env.workDir }}/AppPackages/DistroLauncher-Appx
+          type: 'zip'
+          filename: 'app.zip'
+          exclusions: 'DistroLauncher-Appx_*_Test' 
+      - name: upload to store
+        if: ${{ github.event.inputs.upload == 'yes' }}
+        working-directory: ${{ env.workDir }}
+        shell: bash
+        run: |
+          python3 submit.py -c ${{ secrets.AZURE_AD_CLIENT_ID }} -t ${{ secrets.AZURE_AD_TENANT_ID }}  -k ${{ secrets.AZURE_AD_APP_KEY }} -r "${{ matrix.release }}" -f AppPackages/DistroLauncher-Appx/app.zip
