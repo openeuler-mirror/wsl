@@ -15,13 +15,13 @@
 
 
 ## roadmap
-[] 支持其他launcher（[wsldl](https://github.com/yuk7/wsldl)，[wsl-distrod](https://github.com/nullpo-head/wsl-distrod)）
-[] 和openeuler 发布流程集成，持续发布LTS 版本的wsl rootfs，旁加载应用
-[] 在openEuler的基础设施中构建APP和rootfs，`github action`用户开发者自定义
-[x] 20.03 LTS SP3上架windows商店
-[x] 22.03 LTS 上架windows商店
-[] 22.09 上架windows商店
-[] systemd 正常工作并开启namespace
+- [ ] 支持其他launcher（[wsldl](https://github.com/yuk7/wsldl)，[wsl-distrod](https://github.com/nullpo-head/wsl-distrod)）
+- [ ] 和openeuler 发布流程集成，持续发布LTS 版本的wsl rootfs，旁加载应用
+- [ ] 在openEuler的基础设施中构建APP和rootfs，`github action`用户开发者自定义
+- [x] 20.03 LTS SP3上架windows商店
+- [x] 22.03 LTS 上架windows商店
+- [ ] 22.09 上架windows商店
+- [ ] systemd 正常工作并开启namespace
  
 ## contribution
 You're wellcome
