@@ -54,9 +54,14 @@ if exist "%ProgramFiles%\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current
     set MSBUILD="%ProgramFiles%\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\MSBuild.exe"
     goto :FOUND_MSBUILD
 )
+
+if exist "D:\tools\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe" (
+    set MSBUILD="D:\tools\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe"
+    goto :FOUND_MSBUILD
+)
 if %MSBUILD%==() (
     echo "I couldn't find MSBuild on your PC. Make sure it's installed somewhere, and if it's not in the above if statements (in build.bat), add it."
-    goto :EXIT
+    EXIT 1
 ) 
 :FOUND_MSBUILD
 set _MSBUILD_TARGET=Build
@@ -74,7 +79,7 @@ shift
 goto :ARGS_LOOP
 
 :POST_ARGS_LOOP
-%MSBUILD% %~dp0\DistroLauncher.sln /t:%_MSBUILD_TARGET% /m /nr:false /p:Configuration=%_MSBUILD_CONFIG% /p:AppxBundlePlatforms=x64|ARM64 -verbosity:normal /p:UapAppxPackageBuildMode="StoreUpload" /p:UseSubFolderForOutputDirDuringMultiPlatformBuild=false
+%MSBUILD% %~dp0\DistroLauncher.sln /t:%_MSBUILD_TARGET% /m /nr:false /p:Configuration=%_MSBUILD_CONFIG% /p:AppxBundlePlatforms="x64|ARM64" -verbosity:normal /p:UapAppxPackageBuildMode="StoreUpload" /p:UseSubFolderForOutputDirDuringMultiPlatformBuild=false
 
 if (%ERRORLEVEL%) == (0) (
     echo.
