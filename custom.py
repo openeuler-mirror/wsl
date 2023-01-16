@@ -1,20 +1,26 @@
+#!/bin/env python3
 # coding=utf-8
+"""
+This script copy all wsl metadata from meta/RELEASE dir
+"""
 import argparse
 import sys
 import shutil
 import os.path
-import requests
-import re
 
 def init_parser():
-    parser = argparse.ArgumentParser(
-        prog = 'customer.py',
-        description= 'custom some metadata for openEuler WSL project',
+    """
+    add some args
+    """
+    new_parser = argparse.ArgumentParser(
+        prog='customer.py',
+        description='custom some metadata for openEuler WSL project',
     )
 
-    parser.add_argument('-r', '--release')
-    parser.add_argument('-v', '--version')
-    return parser
+    new_parser.add_argument('-r', '--release')
+    new_parser.add_argument('-v', '--version')
+    return new_parser
+
 
 custom_arrary = [
     {
@@ -36,14 +42,14 @@ version_replace = [
 if __name__ == '__main__':
     parser = init_parser()
     args = parser.parse_args()
-    #print(args.__dict__['release'])
-    if not args.release or not args.version: 
+    # print(args.__dict__['release'])
+    if not args.release or not args.version:
         parser.print_help()
         sys.exit(1)
 
     for f in version_replace:
-        with open("meta/{}/{}".format(args.release, f), "r+", encoding='utf-8') as manifest:
-            content = manifest.read().replace('1.0.0.0', '{}.0'.format(args.version))
+        with open(f"meta/{args.release}/{f}", "r+", encoding='utf-8') as manifest:
+            content = manifest.read().replace('1.0.0.0', f'{args.version}.0')
             manifest.seek(0)
             manifest.write(content)
 
