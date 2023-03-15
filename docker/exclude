@@ -1,0 +1,15 @@
+./afs
+./boot
+./dev
+./home/*
+./media/*
+./mnt/*
+./opt/*
+./proc
+./run
+./srv/*
+./sys
+./tmp/*
+./var/cache/*
+./var/lib/dnf/*
+./var/log/*
