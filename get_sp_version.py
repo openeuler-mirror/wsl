@@ -9,6 +9,7 @@ import re
 import sys
 
 import requests
+from retry import retry_call
 
 def get_sp_version(rel: str) -> str:
     """
@@ -18,7 +19,7 @@ def get_sp_version(rel: str) -> str:
     headers = {"Content-type": "application/json",
                "User-Agent": "Python"}
 
-    resp = requests.get("https://repo.openeuler.org/", headers=headers, timeout=60)
+    resp = retry_call(requests.get, ["https://repo.huaweicloud.com/openeuler"], {"headers": headers, "timeout": 50})
     if resp.status_code != 200:
         sys.exit(1)
 
