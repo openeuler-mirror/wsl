@@ -1,5 +1,15 @@
 ARG REL_TAG=latest
 FROM openeuler/openeuler:$REL_TAG
-RUN dnf groupinstall core -y  && dnf install bc -y && dnf clean all && rm -rf /var/cache/dnf
-COPY wsl.conf /etc/wsl.conf
-RUN sed -i '/TMOUT=300/d' /etc/bashrc
+COPY packages /mnt/packages
+RUN set -ex; \
+    dnf install --installroot /mnt/rootfs --setopt install_weak_deps=false -y $(</mnt/packages); \
+    dnf --installroot /mnt/rootfs clean all; \
+    rm -rf /mnt/rootfs/var/cache/* /mnt/rootfs/var/log/dnf.*; \
+    rm -rf /mnt/rootfs/etc/machine-id; \
+    touch /mnt/rootfs/etc/machine-id; \
+    touch /mnt/rootfs/etc/fstab; \
+    cp /mnt/rootfs/etc/skel/.bash* /mnt/rootfs/root/; \
+    sed -i '/TMOUT=300/d' /mnt/rootfs/etc/bashrc
+COPY wsl.conf /mnt/rootfs/etc/wsl.conf
+COPY exclude /mnt/exclude
+CMD tar -zcOC /mnt/rootfs --exclude-from=/mnt/exclude .
