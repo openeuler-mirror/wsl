@@ -1,0 +1,195 @@
+def giteeCommentHeader = "| Check Name | Build Result | Build Details |\n| --- | ---| --- |\n"
+pipeline {
+    agent {label 'windows'}
+
+    environment {
+        release_version = '0'
+        GITEE_TOKEN = credentials('openeuler-ci-bot')
+    }
+
+    stages {
+        stage('prepare') {
+            steps {
+                // this will set pipline project in first run
+                script {
+                    properties([giteeConnection('gitee')])
+                }
+
+                checkout([$class: 'GitSCM', branches: [[name: "pull/${giteePullRequestIid}/MERGE"]], extensions: [], userRemoteConfigs: [[refspec: "+refs/pull/*/MERGE:refs/pull/*/MERGE", url: "https://gitee.com/openeuler/wsl"]]])
+
+                bat 'pip install -r requirements.txt'
+                
+                bat 'curl -f -o ci_tags.py -L https://gitee.com/openeuler/infrastructure/raw/master/ci/tools/ci_tags.py'
+                
+                bat 'python ci_tags.py %giteeTargetNamespace% %giteeTargetRepoName% %giteePullRequestIid% %GITEE_TOKEN% ATP'
+            }
+        }
+
+        stage('build wsl app') {
+            failFast true
+            parallel {
+                stage('release 22.03') {
+                    steps {
+                        withEnv(["release=22.03"]) {
+                            ws("${release}") {
+                                checkout([$class: 'GitSCM', branches: [[name: "pull/${giteePullRequestIid}/MERGE"]], extensions: [], userRemoteConfigs: [[refspec: "+refs/pull/*/MERGE:refs/pull/*/MERGE", url: "https://gitee.com/openeuler/wsl"]]])
+                                script {
+                                    nstdout = bat(returnStdout: true, script: '@python get_sp_version.py %release%').trim()
+                                    release_version = nstdout
+                                }
+
+                                withEnv(["release_version=${release_version}", "BUILD_NUMBER=${giteePullRequestIid}"]) {
+                                    bat('python custom.py -r %release% -v %release_version%.%BUILD_NUMBER%')
+                                }
+
+                                withCredentials([string(credentialsId: 'wsl_api_token', variable: 'wsl_jenkins_api_token')]) {
+                                    script {
+                                        def jb = build job: 'openeuler-wsl-rootfs-ci', parameters: [string(name: 'release', value: "${release}"), string(name: 'giteePullRequestIid', value: "${giteePullRequestIid}")]
+                                        println jb.id
+                                        withEnv(["id=${jb.id}"]) {
+                                            dir ('x64') {
+                                                retry(3) {
+                                                    bat 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/openeuler-wsl-rootfs-ci/%id%/arch=x86_64,label=docker-buildx/artifact/outdir/%release%-x86_64.tar.gz'
+                                                }
+                                            }
+    
+                                            dir ('ARM64') {
+                                                retry(3) {
+                                                    bat 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/openeuler-wsl-rootfs-ci/%id%/arch=aarch64,label=docker-buildx/artifact/outdir/%release%-aarch64.tar.gz'
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                withCredentials([string(credentialsId: 'wsl_cert_b64_lichaoran', variable: 'cert_b64')]) {
+                                    writeFile file: 'certificate.txt', text: cert_b64
+                                }
+
+                                bat 'powershell "certutil -f -decode certificate.txt certificate.pfx"'
+                                bat 'powershell "Import-PfxCertificate -CertStoreLocation Cert:LocalMachine\\Trust -FilePath certificate.pfx"'
+                                bat 'powershell "Import-PfxCertificate -CertStoreLocation Cert:CurrentUser\\My -FilePath certificate.pfx"'
+                                bat '.\\build.bat'
+                            }
+                        }
+                    }
+                }
+
+                stage('release 22.09') {
+                    steps {
+                        withEnv(["release=22.09"]) {
+                            ws("${release}") {
+                                checkout([$class: 'GitSCM', branches: [[name: "pull/${giteePullRequestIid}/MERGE"]], extensions: [], userRemoteConfigs: [[refspec: "+refs/pull/*/MERGE:refs/pull/*/MERGE", url: "https://gitee.com/openeuler/wsl"]]])
+                                script {
+                                    nstdout = bat(returnStdout: true, script: '@python get_sp_version.py %release%').trim()
+                                    release_version = nstdout
+                                }
+
+                                withEnv(["release_version=${release_version}", "BUILD_NUMBER=${giteePullRequestIid}"]) {
+                                    bat('python custom.py -r %release% -v %release_version%.%BUILD_NUMBER%')
+                                }
+
+                                withCredentials([string(credentialsId: 'wsl_api_token', variable: 'wsl_jenkins_api_token')]) {
+                                    script {
+                                        def jb = build job: 'openeuler-wsl-rootfs-ci', parameters: [string(name: 'release', value: "${release}"), string(name: 'giteePullRequestIid', value: "${giteePullRequestIid}")]
+                                        println jb.id
+                                        withEnv(["id=${jb.id}"]) {
+                                            dir ('x64') {
+                                                retry(3) {
+                                                    bat 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/openeuler-wsl-rootfs-ci/%id%/arch=x86_64,label=docker-buildx/artifact/outdir/%release%-x86_64.tar.gz'
+                                                }
+                                            }
+    
+                                            dir ('ARM64') {
+                                                retry(3) {
+                                                    bat 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/openeuler-wsl-rootfs-ci/%id%/arch=aarch64,label=docker-buildx/artifact/outdir/%release%-aarch64.tar.gz'
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                withCredentials([string(credentialsId: 'wsl_cert_b64_lichaoran', variable: 'cert_b64')]) {
+                                    writeFile file: 'certificate.txt', text: cert_b64
+                                }
+
+                                bat 'powershell "certutil -f -decode certificate.txt certificate.pfx"'
+                                bat 'powershell "Import-PfxCertificate -CertStoreLocation Cert:LocalMachine\\Trust -FilePath certificate.pfx"'
+                                bat 'powershell "Import-PfxCertificate -CertStoreLocation Cert:CurrentUser\\My -FilePath certificate.pfx"'
+                                bat '.\\build.bat'
+                            }
+                        }
+                    }
+                }
+
+                stage('release 20.03') {
+                    steps {
+                        withEnv(["release=20.03"]) {
+                            ws("${release}") {
+                                checkout([$class: 'GitSCM', branches: [[name: "pull/${giteePullRequestIid}/MERGE"]], extensions: [], userRemoteConfigs: [[refspec: "+refs/pull/*/MERGE:refs/pull/*/MERGE", url: "https://gitee.com/openeuler/wsl"]]])
+                                script {
+                                    nstdout = bat(returnStdout: true, script: '@python get_sp_version.py %release%').trim()
+                                    release_version = nstdout
+                                }
+
+                                withEnv(["release_version=${release_version}", "BUILD_NUMBER=${giteePullRequestIid}"]) {
+                                    bat('python custom.py -r %release% -v %release_version%.%BUILD_NUMBER%')
+                                }
+
+                                withCredentials([string(credentialsId: 'wsl_api_token', variable: 'wsl_jenkins_api_token')]) {
+                                    script {
+                                        def jb = build job: 'openeuler-wsl-rootfs-ci', parameters: [string(name: 'release', value: "${release}"), string(name: 'giteePullRequestIid', value: "${giteePullRequestIid}")]
+                                        println jb.id
+                                        withEnv(["id=${jb.id}"]) {
+                                            dir ('x64') {
+                                                retry(3) {
+                                                    bat 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/openeuler-wsl-rootfs-ci/%id%/arch=x86_64,label=docker-buildx/artifact/outdir/%release%-x86_64.tar.gz'
+                                                }
+                                            }
+    
+                                            dir ('ARM64') {
+                                                retry(3) {
+                                                    bat 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/openeuler-wsl-rootfs-ci/%id%/arch=aarch64,label=docker-buildx/artifact/outdir/%release%-aarch64.tar.gz'
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                withCredentials([string(credentialsId: 'wsl_cert_b64_lichaoran', variable: 'cert_b64')]) {
+                                    writeFile file: 'certificate.txt', text: cert_b64
+                                }
+
+                                bat 'powershell "certutil -f -decode certificate.txt certificate.pfx"'
+                                bat 'powershell "Import-PfxCertificate -CertStoreLocation Cert:LocalMachine\\Trust -FilePath certificate.pfx"'
+                                bat 'powershell "Import-PfxCertificate -CertStoreLocation Cert:CurrentUser\\My -FilePath certificate.pfx"'
+                                bat '.\\build.bat'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    post {
+        success {
+            script {
+                comments = giteeCommentHeader + "| WSL Build | **success** :white_check_mark: | [#${currentBuild.fullDisplayName}](${env.BUILD_URL}/console) | \n"
+                bat "python ci_tags.py %giteeTargetNamespace% %giteeTargetRepoName% %giteePullRequestIid% %GITEE_TOKEN% ATS"
+            }
+            addGiteeMRComment comment: comments
+            echo 'succeeded!'
+            cleanWs notFailBuild: true
+        }
+
+        failure {
+            script {
+                comments = giteeCommentHeader + "| WSL Build | **failed** :x: | [#${currentBuild.fullDisplayName}](${env.BUILD_URL}/console) | \n"
+                bat "python ci_tags.py %giteeTargetNamespace% %giteeTargetRepoName% %giteePullRequestIid% %GITEE_TOKEN% ATF"
+            }
+            addGiteeMRComment comment: comments
+            echo 'failed :('
+            cleanWs notFailBuild: true
+        }
+    }
+}

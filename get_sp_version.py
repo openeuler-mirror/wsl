@@ -19,7 +19,7 @@ def get_sp_version(rel: str) -> str:
     headers = {"Content-type": "application/json",
                "User-Agent": "Python"}
 
-    resp = retry_call(requests.get, ["https://repo.huaweicloud.com/openeuler"], {"headers": headers, "timeout": 50})
+    resp = retry_call(requests.get, ["https://mirrors.tuna.tsinghua.edu.cn/openeuler/"], {"headers": headers, "timeout": 50})
     if resp.status_code != 200:
         sys.exit(1)
 
