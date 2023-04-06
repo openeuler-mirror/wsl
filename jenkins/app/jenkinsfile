@@ -28,20 +28,20 @@ pipeline {
                 withCredentials([string(credentialsId: 'wsl_api_token', variable: 'wsl_jenkins_api_token')]) {
                     dir ('x64') {
                         script {
-                            def exitCode = bat script: 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/rootfs/arch=x86_64,label=docker-buildx/lastSuccessfulBuild/artifact/outdir/%release%-x86_64.tar.gz', returnStatus: true
+                            def exitCode = bat script: 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/openeuler-wsl-rootfs/arch=x86_64,label=docker-buildx/lastSuccessfulBuild/artifact/outdir/%release%-x86_64.tar.gz', returnStatus: true
                             if (exitCode != 0) {
-                                build job: 'rootfs', parameters: [string(name: 'release', value: "${release}")]
-                                bat 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/rootfs/arch=x86_64,label=docker-buildx/lastSuccessfulBuild/artifact/outdir/%release%-x86_64.tar.gz'
+                                build job: 'openeuler-wsl-rootfs', parameters: [string(name: 'release', value: "${release}")]
+                                bat 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/openeuler-wsl-rootfs/arch=x86_64,label=docker-buildx/lastSuccessfulBuild/artifact/outdir/%release%-x86_64.tar.gz'
                             }
                         }
                     }
 
                     dir ('ARM64') {
                         script {
-                            def exitCode = bat script: 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/rootfs/arch=aarch64,label=docker-buildx/lastSuccessfulBuild/artifact/outdir/%release%-aarch64.tar.gz', returnStatus: true
+                            def exitCode = bat script: 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/openeuler-wsl-rootfs/arch=aarch64,label=docker-buildx/lastSuccessfulBuild/artifact/outdir/%release%-aarch64.tar.gz', returnStatus: true
                             if (exitCode != 0) {
-                                build job: 'rootfs', parameters: [string(name: 'release', value: "${release}")]
-                                bat 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/rootfs/arch=aarch64,label=docker-buildx/lastSuccessfulBuild/artifact/outdir/%release%-aarch64.tar.gz'
+                                build job: 'openeuler-wsl-rootfs', parameters: [string(name: 'release', value: "${release}")]
+                                bat 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/openeuler-wsl-rootfs/arch=aarch64,label=docker-buildx/lastSuccessfulBuild/artifact/outdir/%release%-aarch64.tar.gz'
                             }
                         }
                     }
