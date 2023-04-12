@@ -10,7 +10,7 @@ pipeline {
             steps {
                 // this will set pipline project in first run
                 script {
-                    properties([giteeConnection('gitee'), parameters([choice(choices: ['22.03','20.03','22.09'], description: 'openEuler release version', name: 'release'), choice(choices: ['no','yes'], description:'Whether to publish the app to Windows Store', name: 'publish')])])
+                    properties([giteeConnection('gitee'), parameters([choice(choices: ['22.03','20.03','23.03'], description: 'openEuler release version', name: 'release'), choice(choices: ['no','yes'], description:'Whether to publish the app to Windows Store', name: 'publish')])])
                 }
 
                 checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[credentialsId: 'lichaoran-gitee', url: 'https://gitee.com/openeuler/wsl']]])

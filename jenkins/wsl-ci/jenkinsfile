@@ -75,9 +75,9 @@ pipeline {
                     }
                 }
 
-                stage('release 22.09') {
+                stage('release 23.03') {
                     steps {
-                        withEnv(["release=22.09"]) {
+                        withEnv(["release=23.03"]) {
                             ws("${release}") {
                                 checkout([$class: 'GitSCM', branches: [[name: "pull/${giteePullRequestIid}/MERGE"]], extensions: [], userRemoteConfigs: [[refspec: "+refs/pull/*/MERGE:refs/pull/*/MERGE", url: "https://gitee.com/openeuler/wsl"]]])
                                 script {
