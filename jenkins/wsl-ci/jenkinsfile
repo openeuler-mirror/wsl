@@ -1,12 +1,9 @@
 def giteeCommentHeader = "| Check Name | Build Result | Build Details |\n| --- | ---| --- |\n"
 pipeline {
     agent {label 'windows'}
-
     environment {
-        release_version = '0'
-        GITEE_TOKEN = credentials('openeuler-ci-bot')
+        GITEE_TOKEN = credentials('44219abb-c35b-4449-b5a9-76fe5c35819f')
     }
-
     stages {
         stage('prepare') {
             steps {
@@ -20,8 +17,9 @@ pipeline {
                 bat 'pip install -r requirements.txt'
                 
                 bat 'curl -f -o ci_tags.py -L https://gitee.com/openeuler/infrastructure/raw/master/ci/tools/ci_tags.py'
-                
-                bat 'python ci_tags.py %giteeTargetNamespace% %giteeTargetRepoName% %giteePullRequestIid% %GITEE_TOKEN% ATP'
+                withCredentials([string(credentialsId: '44219abb-c35b-4449-b5a9-76fe5c35819f', variable: 'GITEE_TOKEN')]) {
+                    bat 'python ci_tags.py %giteeTargetNamespace% %giteeTargetRepoName% %giteePullRequestIid% %GITEE_TOKEN% ATP'
+                }
             }
         }
 
@@ -193,3 +191,4 @@ pipeline {
         }
     }
 }
+
