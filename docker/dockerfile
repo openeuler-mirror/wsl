@@ -1,6 +1,14 @@
 ARG REL_TAG=latest
 FROM openeuler/openeuler:$REL_TAG
+ARG BUILD_TYPE
 COPY packages /mnt/packages
+ADD openEuler-daily.repo /etc/yum.repos.d/openEuler-daily.repo
+RUN env
+RUN if [ "x$BUILD_TYPE" = "xrelease" ];then \
+        rm -fvr /etc/yum.repos.d/openEuler-daily.repo; \
+    else \
+        rm -fvr /etc/yum.repos.d/openEuler.repo; \
+    fi
 RUN set -ex; \
     dnf install --installroot /mnt/rootfs --setopt install_weak_deps=false -y $(</mnt/packages); \
     dnf --installroot /mnt/rootfs clean all; \
