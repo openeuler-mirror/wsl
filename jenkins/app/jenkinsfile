@@ -1,5 +1,5 @@
 pipeline {
-    agent {label 'windows'}
+    agent { label 'windows' }
 
     environment {
         release_version = '0'
@@ -10,7 +10,17 @@ pipeline {
             steps {
                 // this will set pipline project in first run
                 script {
-                    properties([giteeConnection('gitee'), parameters([choice(choices: ['22.03','20.03','23.03'], description: 'openEuler release version', name: 'release'), choice(choices: ['no','yes'], description:'Whether to publish the app to Windows Store', name: 'publish')])])
+                    properties([
+                        giteeConnection('gitee'),
+                        parameters([
+                            choice(choices: ['22.03', '20.03', '23.03'], description: 'openEuler release version', name: 'release'),
+                            choice(choices: ['no', 'yes'], description:'Whether to publish the app to Windows Store', name: 'publish'),
+                            string(name: 'server', description:'hostname of daily build server', defaultValue: 'http://121.36.84.172'),
+                            string(name: 'baseuri', description:'base uri of daily build repos', defaultValue: 'dailybuild'),
+                            string(name: 'branch', description:'branch of daily build repos'),
+                            string(name: 'date', description:'date of daily build repos'),
+                        ])
+                    ])
                 }
 
                 checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[credentialsId: 'lichaoran-gitee', url: 'https://gitee.com/openeuler/wsl']]])
@@ -20,28 +30,39 @@ pipeline {
                     nstdout = bat(returnStdout: true, script: '@python get_sp_version.py %release%').trim()
                     release_version = nstdout
                 }
-                
+
                 withEnv(["release_version=${release_version}"]) {
                     bat('python custom.py -r %release% -v %release_version%.%BUILD_NUMBER%')
                 }
 
                 withCredentials([string(credentialsId: 'wsl_api_token', variable: 'wsl_jenkins_api_token')]) {
-                    dir ('x64') {
+                    withEnv(["server=${server}", "baseuri=${baseuri}", "branch=${branch}", "date=${date}"]) {
                         script {
-                            def exitCode = bat script: 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/openeuler-wsl-rootfs/arch=x86_64,label=docker-buildx/lastSuccessfulBuild/artifact/outdir/%release%-x86_64.tar.gz', returnStatus: true
-                            if (exitCode != 0) {
-                                build job: 'openeuler-wsl-rootfs', parameters: [string(name: 'release', value: "${release}")]
-                                bat 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/openeuler-wsl-rootfs/arch=x86_64,label=docker-buildx/lastSuccessfulBuild/artifact/outdir/%release%-x86_64.tar.gz'
+                            def jb
+                            if (date != "")  {
+                                jb = build job: 'openeuler-wsl-rootfs', parameters: [
+                                    string(name: 'release', value: "${release}"),
+                                    string(name: 'server', value: "${server}"),
+                                    string(name: 'baseuri', value: "${baseuri}"),
+                                    string(name: 'branch', value: "${branch}"),
+                                    string(name: 'date', value: "${date}")
+                                ]
+                            } else {
+                                jb = build job: 'openeuler-wsl-rootfs', parameters: [string(name: 'release', value: "${release}")]
                             }
-                        }
-                    }
-
-                    dir ('ARM64') {
-                        script {
-                            def exitCode = bat script: 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/openeuler-wsl-rootfs/arch=aarch64,label=docker-buildx/lastSuccessfulBuild/artifact/outdir/%release%-aarch64.tar.gz', returnStatus: true
-                            if (exitCode != 0) {
-                                build job: 'openeuler-wsl-rootfs', parameters: [string(name: 'release', value: "${release}")]
-                                bat 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/openeuler-wsl-rootfs/arch=aarch64,label=docker-buildx/lastSuccessfulBuild/artifact/outdir/%release%-aarch64.tar.gz'
+                            dir('x64') {
+                                withEnv(["id=${jb.id}"]) {
+                                    script {
+                                        bat 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/openeuler-wsl-rootfs/%id%/arch=x86_64,label=docker-buildx/artifact/outdir/%release%-x86_64.tar.gz'
+                                    }
+                                }
+                            }
+                            dir('ARM64') {
+                                withEnv(["id=${jb.id}"]) {
+                                    script {
+                                        bat 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/openeuler-wsl-rootfs/%id%/arch=aarch64,label=docker-buildx/artifact/outdir/%release%-aarch64.tar.gz'
+                                    }
+                                }
                             }
                         }
                     }
@@ -57,20 +78,18 @@ pipeline {
                 bat '.\\build.bat'
                 bat 'powershell "cp -v meta/%release%/%release%.PNG AppPackages/DistroLauncher-Appx/"'
 
-
                 bat 'powershell Compress-Archive -Path ".\\AppPackages\\DistroLauncher-Appx\\DistroLauncher-Appx_*\\*" -DestinationPath sideload-%release%.zip'
                 archiveArtifacts artifacts: "sideload-${release}.zip", followSymlinks: false
-                
                 script {
                     if (publish == 'yes') {
-                        dir ('AppPackages/DistroLauncher-Appx') {
+                        dir('AppPackages/DistroLauncher-Appx') {
                             bat 'powershell Compress-Archive -Path ".\\DistroLauncher-Appx_*_x64_arm64_bundle.appxupload", "*.PNG" -DestinationPath app.zip"'
                         }
-                        withCredentials([string(credentialsId:'openeuler_wsl_azure_tenant_id_lichaoran', variable: 'tenant_id'), 
-                                            string(credentialsId:'openeuler_wsl_azure_client_id_lichaoran', variable: 'client_id'), 
+                        withCredentials([string(credentialsId:'openeuler_wsl_azure_tenant_id_lichaoran', variable: 'tenant_id'),
+                                            string(credentialsId:'openeuler_wsl_azure_client_id_lichaoran', variable: 'client_id'),
                                             string(credentialsId:'openeuler_wsl_azure_app_key_lichaoran', variable:'app_key')]) {
                             bat 'python submit.py -c %client_id% -t  %tenant_id% -k %app_key% -r %release% -f AppPackages/DistroLauncher-Appx/app.zip'
-                        }
+                                            }
                     }
                 }
             }
