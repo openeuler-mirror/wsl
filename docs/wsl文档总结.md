@@ -40,31 +40,28 @@ wsl sideload是指在WSL中安装不在Microsoft Store中提供的Linux发行版
 
 ## 构建一个sideload
 
-依次执行如下命令，从 docker 中导出一个 Linux 发行版容器：
+首先在一个 terminal 中依次执行如下命令，从 docker 中导出一个 Linux 发行版容器：
 
 ```
-wsl -d Ubuntu
-sudo service docker start
-docker run -t centos bash ls /
+docker pull openeuler/openeuler
+docker run -t openeuler/openeuler
+```
+
+然后在另一个 terminal 中依次执行如下命令，导出openeuler：
+
+```
 docker ps
-docker export $(docker ps -ql) > ./centos.tar
-exit
+docker export $(docker ps -ql) > ./openeuler.tar
 ```
 
-然后执行如下指令，设置用户名和密码：
+然后执行如下指令，使用WSL命令，导入openEuler包，并指明openEuler的安装目录。例如，设置D:\work\WSL\openEuler为WSL的安装目录。：
 
 ```
-wsl --import CentOS D:\Download\CentOS .\centos.tar
-sudo sed -i -e "s|mirrorlist=|#mirrorlist=|g" /etc/yum.repos.d/CentOS-*
-sudo sed -i -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-*
-yum update -y && yum install passwd sudo -y
-myUsername=username
-adduser -G wheel $myUsername
-echo -e "[user]\ndefault=$myUsername" >> /etc/wsl.conf
-passwd $myUsername
+wsl --import openEuler D:\work\WSL\openEuler .\openEuler.tar
+wsl -d openEuler
 ```
 
-之后使用 sudo 执行命令的时候，就需要前面设置的密码了
+即可实现 sideload 方式加载自定义的 wsl
 
 # 在wsl中实现图形化界面
 
