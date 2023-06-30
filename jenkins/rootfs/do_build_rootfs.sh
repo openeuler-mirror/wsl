@@ -1,13 +1,13 @@
 #!/bin/bash
 
 set -eE
+set -o pipefail
 trap cleanup EXIT
 
 function cleanup() {
+    set +eE
     [ ! -z "$(docker buildx ls | grep buildx-$release-$arch)" ] && docker buildx rm buildx-$release-$arch
-    sleep 10
-    docker ps -aq --filter ancestor=openeuler-wsl:$release-$arch | xargs -r docker stop
-    docker rmi openeuler-wsl:$release-$arch
+    return 0
 }
 
 function print_args() {
@@ -21,9 +21,6 @@ function print_args() {
 }
 
 [ -d $WORKSPACE/outdir/ ] && rm -rvf $WORKSPACE/outdir/* || mkdir -pv $WORKSPACE/outdir
-docker info
-docker buildx ls
-docker ps -a
 print_args
 BUILD_TYPE="release"
 touch $WORKSPACE/docker/openEuler-daily.repo
