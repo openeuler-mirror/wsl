@@ -78,8 +78,8 @@ pipeline {
                 bat '.\\build.bat'
                 bat 'powershell "cp -v meta/%release%/%release%.PNG AppPackages/DistroLauncher-Appx/"'
 
-                bat 'powershell Compress-Archive -Path ".\\AppPackages\\DistroLauncher-Appx\\DistroLauncher-Appx_*\\*" -DestinationPath sideload-%release%.zip'
-                archiveArtifacts artifacts: "sideload-${release}.zip", followSymlinks: false
+                bat 'powershell Compress-Archive -Path ".\\AppPackages\\DistroLauncher-Appx\\DistroLauncher-Appx_*\\*" -DestinationPath openEuler-WSL-%release%.zip'
+                archiveArtifacts artifacts: "openEuler-WSL-${release}.zip", followSymlinks: false
                 script {
                     if (publish == 'yes') {
                         dir('AppPackages/DistroLauncher-Appx') {
