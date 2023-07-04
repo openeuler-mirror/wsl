@@ -17,8 +17,8 @@ pipeline {
                             choice(choices: ['no', 'yes'], description:'Whether to publish the app to Windows Store', name: 'publish'),
                             string(name: 'server', description:'hostname of daily build server', defaultValue: 'http://121.36.84.172'),
                             string(name: 'baseuri', description:'base uri of daily build repos', defaultValue: 'dailybuild'),
-                            string(name: 'branch', description:'branch of daily build repos'),
-                            string(name: 'date', description:'date of daily build repos'),
+                            string(name: 'branch', description:'branch of daily build repos', defaultValue: ''),
+                            string(name: 'date', description:'date of daily build repos', defaultValue: ''),
                         ])
                     ])
                 }
@@ -36,32 +36,30 @@ pipeline {
                 }
 
                 withCredentials([string(credentialsId: 'wsl_api_token', variable: 'wsl_jenkins_api_token')]) {
-                    withEnv(["server=${server}", "baseuri=${baseuri}", "branch=${branch}", "date=${date}"]) {
-                        script {
-                            def jb
-                            if (date != "")  {
-                                jb = build job: 'openeuler-wsl-rootfs', parameters: [
-                                    string(name: 'release', value: "${release}"),
-                                    string(name: 'server', value: "${server}"),
-                                    string(name: 'baseuri', value: "${baseuri}"),
-                                    string(name: 'branch', value: "${branch}"),
-                                    string(name: 'date', value: "${date}")
-                                ]
-                            } else {
-                                jb = build job: 'openeuler-wsl-rootfs', parameters: [string(name: 'release', value: "${release}")]
-                            }
-                            dir('x64') {
-                                withEnv(["id=${jb.id}"]) {
-                                    script {
-                                        bat 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/openeuler-wsl-rootfs/%id%/arch=x86_64,label=docker-buildx/artifact/outdir/%release%-x86_64.tar.gz'
-                                    }
+                    script {
+                        def jb
+                        if (env.date != "")  {
+                            jb = build job: 'openeuler-wsl-rootfs', parameters: [
+                                string(name: 'release', value: "${env.release}"),
+                                string(name: 'server', value: "${env.server}"),
+                                string(name: 'baseuri', value: "${env.baseuri}"),
+                                string(name: 'branch', value: "${env.branch}"),
+                                string(name: 'date', value: "${env.date}")
+                            ]
+                        } else {
+                            jb = build job: 'openeuler-wsl-rootfs', parameters: [string(name: 'release', value: "${env.release}")]
+                        }
+                        dir('x64') {
+                            withEnv(["id=${jb.id}"]) {
+                                script {
+                                    bat 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/openeuler-wsl-rootfs/%id%/arch=x86_64,label=docker-buildx/artifact/outdir/%release%-x86_64.tar.gz'
                                 }
                             }
-                            dir('ARM64') {
-                                withEnv(["id=${jb.id}"]) {
-                                    script {
-                                        bat 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/openeuler-wsl-rootfs/%id%/arch=aarch64,label=docker-buildx/artifact/outdir/%release%-aarch64.tar.gz'
-                                    }
+                        }
+                        dir('ARM64') {
+                            withEnv(["id=${jb.id}"]) {
+                                script {
+                                    bat 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/openeuler-wsl-rootfs/%id%/arch=aarch64,label=docker-buildx/artifact/outdir/%release%-aarch64.tar.gz'
                                 }
                             }
                         }
