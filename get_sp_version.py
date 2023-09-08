@@ -25,9 +25,12 @@ def get_sp_version(rel: str) -> str:
 
     res = re.compile(f'openEuler-{rel}(-LTS)?(-SP([0-9]))?')
 
-    ver = re.findall(res, resp.text)[-1][2]
+    vers = re.findall(res, resp.text)
 
-    return ver if ver else '0'
+    if len(vers) == 0:
+        return '0'
+
+    return vers[-1][2] if vers[-1][2] else '0'
 
 
 if __name__ == '__main__':
