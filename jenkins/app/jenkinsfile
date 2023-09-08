@@ -13,7 +13,7 @@ pipeline {
                     properties([
                         giteeConnection('gitee'),
                         parameters([
-                            choice(choices: ['22.03', '20.03', '23.03'], description: 'openEuler release version', name: 'release'),
+                            choice(choices: ['22.03', '20.03', '23.03', '23.09'], description: 'openEuler release version', name: 'release'),
                             choice(choices: ['no', 'yes'], description:'Whether to publish the app to Windows Store', name: 'publish'),
                             string(name: 'server', description:'hostname of daily build server', defaultValue: 'http://121.36.84.172'),
                             string(name: 'baseuri', description:'base uri of daily build repos', defaultValue: 'dailybuild'),

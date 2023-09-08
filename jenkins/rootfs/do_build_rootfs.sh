@@ -2,13 +2,6 @@
 
 set -eE
 set -o pipefail
-trap cleanup EXIT
-
-function cleanup() {
-    set +eE
-    [ ! -z "$(docker buildx ls | grep buildx-$release-$arch)" ] && docker buildx rm buildx-$release-$arch
-    return 0
-}
 
 function print_args() {
     echo "server: $server"
