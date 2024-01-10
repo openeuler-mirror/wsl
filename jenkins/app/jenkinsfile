@@ -24,6 +24,7 @@ pipeline {
                 }
 
                 checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[credentialsId: 'lichaoran-gitee', url: 'https://gitee.com/openeuler/wsl']]])
+                bat 'pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple'
                 bat 'pip install -r requirements.txt'
 
                 script {
@@ -35,7 +36,7 @@ pipeline {
                     bat('python custom.py -r %release% -v %release_version%.%BUILD_NUMBER%')
                 }
 
-                withCredentials([string(credentialsId: 'wsl_api_token', variable: 'wsl_jenkins_api_token')]) {
+                withCredentials([string(credentialsId: 'wsl_api_token', variable: 'wsl_jenkins_api_token'), string(credentialsId: 'openeuler-wsl-jenkins-master-url', variable: 'url')]) {
                     script {
                         def jb
                         if (env.date != "")  {
@@ -52,14 +53,14 @@ pipeline {
                         dir('x64') {
                             withEnv(["id=${jb.id}"]) {
                                 script {
-                                    bat 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/openeuler-wsl-rootfs/%id%/arch=x86_64,label=docker-buildx/artifact/outdir/%release%-x86_64.tar.gz'
+                                    bat 'curl -f -o install.tar.gz -L http://lichaoran:%wsl_jenkins_api_token%@%url%/job/EBS-OS-build/job/wsl/job/openeuler-wsl-rootfs/%id%/arch=x86_64,label=docker-buildx/artifact/outdir/%release%-x86_64.tar.gz'
                                 }
                             }
                         }
                         dir('ARM64') {
                             withEnv(["id=${jb.id}"]) {
                                 script {
-                                    bat 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/openeuler-wsl-rootfs/%id%/arch=aarch64,label=docker-buildx/artifact/outdir/%release%-aarch64.tar.gz'
+                                    bat 'curl -f -o install.tar.gz -L http://lichaoran:%wsl_jenkins_api_token%@%url%/job/EBS-OS-build/job/wsl/job/openeuler-wsl-rootfs/%id%/arch=aarch64,label=docker-buildx/artifact/outdir/%release%-aarch64.tar.gz'
                                 }
                             }
                         }
@@ -70,18 +71,20 @@ pipeline {
                     writeFile file: 'certificate.txt', text: cert_b64
                 }
 
-                bat 'powershell "certutil -decode certificate.txt certificate.pfx"'
+                bat 'powershell "certutil -decode -f certificate.txt certificate.pfx"'
                 bat 'powershell "Import-PfxCertificate -CertStoreLocation Cert:LocalMachine\\Trust -FilePath certificate.pfx"'
                 bat 'powershell "Import-PfxCertificate -CertStoreLocation Cert:CurrentUser\\My -FilePath certificate.pfx"'
                 bat '.\\build.bat'
                 bat 'powershell "cp -v meta/%release%/%release%.PNG AppPackages/DistroLauncher-Appx/"'
 
-                bat 'powershell Compress-Archive -Path ".\\AppPackages\\DistroLauncher-Appx\\DistroLauncher-Appx_*\\*" -DestinationPath openEuler-WSL-%release%.zip'
+                bat 'powershell Compress-Archive -Force -Path ".\\AppPackages\\DistroLauncher-Appx\\DistroLauncher-Appx_*\\*" -DestinationPath openEuler-WSL-%release%.zip'
+                bat 'python hash.py openEuler-WSL-%release%.zip'
                 archiveArtifacts artifacts: "openEuler-WSL-${release}.zip", followSymlinks: false
+                archiveArtifacts artifacts: "openEuler-WSL-${release}.zip.sha256sum", followSymlinks: false
                 script {
                     if (publish == 'yes') {
                         dir('AppPackages/DistroLauncher-Appx') {
-                            bat 'powershell Compress-Archive -Path ".\\DistroLauncher-Appx_*_x64_arm64_bundle.appxupload", "*.PNG" -DestinationPath app.zip"'
+                            bat 'powershell Compress-Archive -Force -Path ".\\DistroLauncher-Appx_*_x64_arm64_bundle.appxupload", "*.PNG" -DestinationPath app.zip"'
                         }
                         withCredentials([string(credentialsId:'openeuler_wsl_azure_tenant_id_lichaoran', variable: 'tenant_id'),
                                             string(credentialsId:'openeuler_wsl_azure_client_id_lichaoran', variable: 'client_id'),

@@ -17,6 +17,7 @@ pipeline {
 
                 checkout([$class: 'GitSCM', branches: [[name: "pull/${giteePullRequestIid}/MERGE"]], extensions: [], userRemoteConfigs: [[refspec: "+refs/pull/*/MERGE:refs/pull/*/MERGE", url: "https://gitee.com/openeuler/wsl"]]])
 
+                bat 'pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple'
                 bat 'pip install -r requirements.txt'
                 
                 bat 'curl -f -o ci_tags.py -L https://gitee.com/openeuler/infrastructure/raw/master/ci/tools/ci_tags.py'
@@ -42,20 +43,20 @@ pipeline {
                                     bat('python custom.py -r %release% -v %release_version%.%BUILD_NUMBER%')
                                 }
 
-                                withCredentials([string(credentialsId: 'wsl_api_token', variable: 'wsl_jenkins_api_token')]) {
+                                withCredentials([string(credentialsId: 'wsl_api_token', variable: 'wsl_jenkins_api_token'), string(credentialsId: 'openeuler-wsl-jenkins-master-url', variable: 'url')]) {
                                     script {
                                         def jb = build job: 'openeuler-wsl-rootfs-ci', parameters: [string(name: 'release', value: "${release}"), string(name: 'giteePullRequestIid', value: "${giteePullRequestIid}")]
                                         println jb.id
                                         withEnv(["id=${jb.id}"]) {
                                             dir ('x64') {
                                                 retry(3) {
-                                                    bat 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/openeuler-wsl-rootfs-ci/%id%/arch=x86_64,label=docker-buildx/artifact/outdir/%release%-x86_64.tar.gz'
+                                                    bat 'curl -f -o install.tar.gz -L http://lichaoran:%wsl_jenkins_api_token%@%url%/job/EBS-OS-build/job/wsl/job/openeuler-wsl-rootfs-ci/%id%/arch=x86_64,label=docker-buildx/artifact/outdir/%release%-x86_64.tar.gz'
                                                 }
                                             }
     
                                             dir ('ARM64') {
                                                 retry(3) {
-                                                    bat 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/openeuler-wsl-rootfs-ci/%id%/arch=aarch64,label=docker-buildx/artifact/outdir/%release%-aarch64.tar.gz'
+                                                    bat 'curl -f -o install.tar.gz -L http://lichaoran:%wsl_jenkins_api_token%@%url%/job/EBS-OS-build/job/wsl/job/openeuler-wsl-rootfs-ci/%id%/arch=aarch64,label=docker-buildx/artifact/outdir/%release%-aarch64.tar.gz'
                                                 }
                                             }
                                         }
@@ -77,7 +78,7 @@ pipeline {
 
                 stage('release 23.03') {
                     steps {
-                        withEnv(["release=23.03"]) {
+                        withEnv(["release=23.09"]) {
                             ws("${release}") {
                                 checkout([$class: 'GitSCM', branches: [[name: "pull/${giteePullRequestIid}/MERGE"]], extensions: [], userRemoteConfigs: [[refspec: "+refs/pull/*/MERGE:refs/pull/*/MERGE", url: "https://gitee.com/openeuler/wsl"]]])
                                 script {
@@ -89,20 +90,20 @@ pipeline {
                                     bat('python custom.py -r %release% -v %release_version%.%BUILD_NUMBER%')
                                 }
 
-                                withCredentials([string(credentialsId: 'wsl_api_token', variable: 'wsl_jenkins_api_token')]) {
+                                withCredentials([string(credentialsId: 'wsl_api_token', variable: 'wsl_jenkins_api_token'), string(credentialsId: 'openeuler-wsl-jenkins-master-url', variable: 'url')]) {
                                     script {
                                         def jb = build job: 'openeuler-wsl-rootfs-ci', parameters: [string(name: 'release', value: "${release}"), string(name: 'giteePullRequestIid', value: "${giteePullRequestIid}")]
                                         println jb.id
                                         withEnv(["id=${jb.id}"]) {
                                             dir ('x64') {
                                                 retry(3) {
-                                                    bat 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/openeuler-wsl-rootfs-ci/%id%/arch=x86_64,label=docker-buildx/artifact/outdir/%release%-x86_64.tar.gz'
+                                                    bat 'curl -f -o install.tar.gz -L http://lichaoran:%wsl_jenkins_api_token%@%url%/job/EBS-OS-build/job/wsl/job/openeuler-wsl-rootfs-ci/%id%/arch=x86_64,label=docker-buildx/artifact/outdir/%release%-x86_64.tar.gz'
                                                 }
                                             }
     
                                             dir ('ARM64') {
                                                 retry(3) {
-                                                    bat 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/openeuler-wsl-rootfs-ci/%id%/arch=aarch64,label=docker-buildx/artifact/outdir/%release%-aarch64.tar.gz'
+                                                    bat 'curl -f -o install.tar.gz -L http://lichaoran:%wsl_jenkins_api_token%@%url%/job/EBS-OS-build/job/wsl/job/openeuler-wsl-rootfs-ci/%id%/arch=aarch64,label=docker-buildx/artifact/outdir/%release%-aarch64.tar.gz'
                                                 }
                                             }
                                         }
@@ -136,20 +137,20 @@ pipeline {
                                     bat('python custom.py -r %release% -v %release_version%.%BUILD_NUMBER%')
                                 }
 
-                                withCredentials([string(credentialsId: 'wsl_api_token', variable: 'wsl_jenkins_api_token')]) {
+                                withCredentials([string(credentialsId: 'wsl_api_token', variable: 'wsl_jenkins_api_token'), string(credentialsId: 'openeuler-wsl-jenkins-master-url', variable: 'url')]) {
                                     script {
                                         def jb = build job: 'openeuler-wsl-rootfs-ci', parameters: [string(name: 'release', value: "${release}"), string(name: 'giteePullRequestIid', value: "${giteePullRequestIid}")]
                                         println jb.id
                                         withEnv(["id=${jb.id}"]) {
                                             dir ('x64') {
                                                 retry(3) {
-                                                    bat 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/openeuler-wsl-rootfs-ci/%id%/arch=x86_64,label=docker-buildx/artifact/outdir/%release%-x86_64.tar.gz'
+                                                    bat 'curl -f -o install.tar.gz -L http://lichaoran:%wsl_jenkins_api_token%@%url%/job/EBS-OS-build/job/wsl/job/openeuler-wsl-rootfs-ci/%id%/arch=x86_64,label=docker-buildx/artifact/outdir/%release%-x86_64.tar.gz'
                                                 }
                                             }
     
                                             dir ('ARM64') {
                                                 retry(3) {
-                                                    bat 'curl -f -o install.tar.gz -L https://lichaoran:%wsl_jenkins_api_token%@jenkins.osinfra.cn/job/openeuler-wsl/job/openeuler-wsl-rootfs-ci/%id%/arch=aarch64,label=docker-buildx/artifact/outdir/%release%-aarch64.tar.gz'
+                                                    bat 'curl -f -o install.tar.gz -L http://lichaoran:%wsl_jenkins_api_token%@%url%/job/EBS-OS-build/job/wsl/job/openeuler-wsl-rootfs-ci/%id%/arch=aarch64,label=docker-buildx/artifact/outdir/%release%-aarch64.tar.gz'
                                                 }
                                             }
                                         }
