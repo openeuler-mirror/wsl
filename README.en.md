@@ -29,7 +29,7 @@ Openeuler distribution launched through Microsoft launcher
 
 ## contribution
 
-You're wellcome
+You're welcome
 
 ## LICENSE
 
