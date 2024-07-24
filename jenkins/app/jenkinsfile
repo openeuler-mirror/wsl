@@ -67,7 +67,7 @@ pipeline {
                     }
                 }
 
-                withCredentials([string(credentialsId: 'wsl_cert_b64_lichaoran', variable: 'cert_b64')]) {
+                withCredentials([string(credentialsId: 'wsl_cert_b64_CN920C954F-C51F-4683-B12C-C821B68C7D6B', variable: 'cert_b64')]) {
                     writeFile file: 'certificate.txt', text: cert_b64
                 }
 
