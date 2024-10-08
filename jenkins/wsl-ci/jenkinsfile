@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('prepare') {
             steps {
-                // this will set pipline project in first run
+                // this will set pipeline project in first run
                 script {
                     properties([giteeConnection('gitee')])
                 }
