@@ -243,7 +243,7 @@ def init_parser():
         description="automate create a UWP app submission",
     )
 
-    new_parser.add_argument("-c", "--client_id", help="azure AD applicaion client id")
+    new_parser.add_argument("-c", "--client_id", help="azure AD application client id")
     new_parser.add_argument("-t", "--tenant_id", help="azure AD user id")
     new_parser.add_argument(
         "-k", "--client_secret", help="azure AD application key secret"
