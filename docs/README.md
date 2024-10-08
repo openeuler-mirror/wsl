@@ -8,7 +8,7 @@
 
 ## 1 启动控制台
 
-使用管理员身份打开PoweShell，您可以按下Win+X，点击“**Windows PowerShell (管理员)**”。
+使用管理员身份打开PowerShell，您可以按下Win+X，点击“**Windows PowerShell (管理员)**”。
 
 请注意，请不要点击“Windows PowerShell”，一定要点击带有(管理员)后缀的，因为这样才能用管理员身份启动。
 
