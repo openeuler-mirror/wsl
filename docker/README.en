@@ -8,6 +8,6 @@ For security reasons, openEuler defines TMOUT=300 in the /etc/bashrc file to dis
 Because Microsoft has modified the network configuration, if you use VPN or other software, please shut down VPN, restart the computer to try to fix the problem. If you're not using a VPN, a reboot can usually fix the problem too.
 
 # Where do I get Help?
-If you encounter problems, please first go to the search engine search error, normally you wll find answers.
+If you encounter problems, please first go to the search engine search error, normally you will find answers.
 If a solution is not found, you can refer to Microsoft WSL official documentation: https://docs.microsoft.com/zh-cn/windows/wsl/install-manual
 If there is still no solution, welcome to https://gitee.com/openeuler/wsl/issues, asking questions, we will try to answer your questions.
