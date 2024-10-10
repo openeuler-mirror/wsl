@@ -181,7 +181,7 @@ VScode可以使用ssh的方式，连接到WSL。其需要在WSL中下载一个�
 
 ## VScode连接openEuler失败
 
-如果您使用VScode 连接openEUler报错，出现了下图所示的报错，那么您需要在openEulelr中安装tar，才能让VScode连接成功。
+如果您使用VScode连接openEuler报错，出现了下图所示的报错，那么您需要在openEuler中安装tar，才能让VScode连接成功。
 
 请使用命令行启动openEuler，然后运行下列命令来安装tar包。
 
