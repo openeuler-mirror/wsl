@@ -45,7 +45,7 @@ jobs:
       # https://github.com/docker/build-push-action
       - name: Build and save ${{ matrix.arch }} image
         id: build-and-push
-        uses: docker/build-push-action@c56af957549030174b10d6867f20e78cfd7debc5
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83
         with:
           context: docker/
           platforms: linux/${{ matrix.arch }}
