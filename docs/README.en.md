@@ -8,7 +8,7 @@ Official documents are available at: [Install WSL on Windows 10 | Microsoft Docs
 
 ## 1 Run PowerShell
 
-To open Poweshell as an administrator, you can press  **Win+X**  and click **Windows PowerShell (Administrator)**.
+To open Powershell as an administrator, you can press  **Win+X**  and click **Windows PowerShell (Administrator)**.
 
 Do not click **Windows PowerShell**. Do click the one with the **administrator** suffix.
 
@@ -80,7 +80,7 @@ As shown in the figure, drag the small openEuler icon on the left to the right t
 
 ## Launch from a command line
 
-There are three command lines on Windows: Poweshell, cmd, and Windows Terminal.
+There are three command lines on Windows: Powershell, cmd, and Windows Terminal.
 
 Windows Terminal is recommended, which is more in line with the habits of Linux and has a more beautiful interface.
 

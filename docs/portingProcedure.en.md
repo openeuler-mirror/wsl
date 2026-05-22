@@ -45,14 +45,14 @@ Start the WSL with Docker installed
 Run scripts directly under the repository  
  
 ```bash  
-git clone https://gitee.com/openeuler/wsl.git  
+git clone https://atomgit.com/openeuler/wsl.git  
 cd wsl  
 sudo ./generate_rootfs.sh  
 ```
  
 This will generate a root file system of openEuler's latest available long-term stable image, packaged and compressed as install.tar.gz.  
  
-Reference [openeuler docker - images:  Dockerfiles for openEuler official basic and application images. -   Gitee.com](https://gitee.com/openeuler/openeuler-docker-images/tree/master)  
+Reference [openeuler docker - images:  Dockerfiles for openEuler official basic and application images. -   Gitee.com](https://atomgit.com/openeuler/openeuler-docker-images/tree/master)  
  
 You can change the label of the first line of docker/dockerfile to the following options to generate different versions of the root file system.  
  
