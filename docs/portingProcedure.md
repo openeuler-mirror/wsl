@@ -48,14 +48,14 @@ WSL很多地方与docker很像，如：
 直接运行仓库下的脚本
 
 ```bash
-git clone https://gitee.com/openeuler/wsl.git
+git clone https://atomgit.com.com/openeuler/wsl.git
 cd wsl
 sudo ./generate_rootfs.sh
 ```
 
 这将生成一个 openEuler 最新可用的长期稳定镜像的根文件系统，打包压缩为 install.tar.gz。
 
-参考[openeuler-docker-images: Dockerfiles for openEuler official basic and application images. - Gitee.com](https://gitee.com/openeuler/openeuler-docker-images/tree/master)
+参考[openeuler-docker-images: Dockerfiles for openEuler official basic and application images. - atomgit.com](https://atomgit.com/openeuler/openeuler-docker-images/tree/master)
 
 你可以修改 docker/dockerfile 中的第一行的标签为如下选项，来生成不同版本的根文件系统。
 

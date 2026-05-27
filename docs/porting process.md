@@ -267,4 +267,4 @@ Then submit your application and wait for Microsoft to approve it.
 
 # Notes
 
-If you clone from https://gitee.com/openeuler/wsl, then folder name should change from wsl to WSL-DistroLauncher, otherwise the follow-up may compile failed.
+If you clone from https://atomgit.com/openeuler/wsl, then folder name should change from wsl to WSL-DistroLauncher, otherwise the follow-up may compile failed.

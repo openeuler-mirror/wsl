@@ -8,4 +8,4 @@ openEuler 考虑到安全的原因，在/etc/bashrc文件下定义了 TMOUT=300�
 # 在哪里寻求帮助？
 如果您遇到问题，请首先去搜索引擎查找报错，基本都有解答。
 如果没有找到解决方案，可以参考微软 WSL 官方文档：https://docs.microsoft.com/zh-cn/windows/wsl/install-manual
-如果还是没有解决，欢迎您前往 https://gitee.com/openeuler/wsl/issues，提问，我们会尽量解答您的问题。
+如果还是没有解决，欢迎您前往 https://atomgit.com/openeuler/wsl/issues，提问，我们会尽量解答您的问题。
